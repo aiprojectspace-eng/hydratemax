@@ -41,7 +41,31 @@ body {
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 60px;
+
+  position: relative; /* ADD THIS */
+  overflow: hidden;   /* IMPORTANT */
+
+<div class="container hero">
+
+  <!-- COLD PARTICLES -->
+  <div class="cold-particle" style="left:15%; animation-delay:0s;"></div>
+  <div class="cold-particle" style="left:40%; animation-delay:3s;"></div>
+  <div class="cold-particle" style="left:70%; animation-delay:6s;"></div>
+
+  <div>
+    <h1>HydrateMax</h1>
+    <p>...</p>
+    <a class="btn" href="#">Order via WhatsApp</a>
+  </div>
+
+  <div class="hero-image-wrap">
+    <img src="product.png" alt="HydrateMax Bottle">
+  </div>
+
+</div>
+
 }
+
 
 /* TYPOGRAPHY */
 h1, h2, h3 {
@@ -175,6 +199,29 @@ footer {
     box-shadow: 0 12px 30px rgba(0,0,0,0.3);
     z-index: 999;
   }
+
+  .cold-particle {
+  position: absolute;
+  bottom: -20px;
+  width: 6px;
+  height: 6px;
+  background: rgba(180,220,255,0.5);
+  border-radius: 50%;
+  animation: floatUp 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-120vh);
+    opacity: 1;
+  }
+}
+
 }
   
 </head>
@@ -252,4 +299,5 @@ footer {
   position: relative;
   z-index: 1;
 }
+
 
