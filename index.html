@@ -13,9 +13,40 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 
 body{
-  background:radial-gradient(circle at top,#021421,#000814 70%);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0,255,255,0.08), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(0,200,255,0.08), transparent 40%),
+    linear-gradient(180deg,#021421,#000814 70%);
   color:#e9fbff;
   overflow-x:hidden;
+}
+
+/* ICE CRACK */
+.ice{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(120deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 2px, transparent 12px),
+    repeating-linear-gradient(60deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 2px, transparent 14px);
+  opacity:.25;
+}
+
+/* COLD MIST */
+.mist{
+  position:fixed;
+  bottom:-100px;
+  left:-50%;
+  width:200%;
+  height:400px;
+  background:radial-gradient(circle, rgba(200,255,255,0.12), transparent 70%);
+  filter:blur(60px);
+  animation:mistMove 25s linear infinite;
+}
+
+@keyframes mistMove{
+  from{transform:translateX(0);}
+  to{transform:translateX(-20%);}
 }
 
 /* CONTAINER */
@@ -27,11 +58,10 @@ body{
   align-items:center;
   justify-content:space-between;
   min-height:100vh;
-  position:relative;
   gap:40px;
+  position:relative;
 }
 
-/* TEXT */
 .hero h1{
   font-size:64px;
   background:linear-gradient(90deg,#7be7ff,#00ffd5);
@@ -76,33 +106,6 @@ body{
   50%{transform:translateY(-18px);}
 }
 
-/* ICE CRACK OVERLAY */
-.ice{
-  position:absolute;
-  inset:0;
-  background:url("https://i.imgur.com/9QZ7Z6F.png") center/cover no-repeat;
-  opacity:0.07;
-  mix-blend-mode:screen;
-  pointer-events:none;
-}
-
-/* COLD MIST */
-.mist{
-  position:absolute;
-  bottom:-50px;
-  left:0;
-  width:200%;
-  height:300px;
-  background:url("https://i.imgur.com/8yKQF4T.png") repeat-x;
-  opacity:0.15;
-  animation:mistMove 40s linear infinite;
-}
-
-@keyframes mistMove{
-  from{transform:translateX(0);}
-  to{transform:translateX(-50%);}
-}
-
 /* PARTICLES */
 .particle{
   position:absolute;
@@ -119,16 +122,10 @@ body{
   to{transform:translateY(-120vh);opacity:0;}
 }
 
-/* PRODUCT SECTION */
-.product{
-  text-align:center;
-  padding:120px 20px;
-}
+/* PRODUCT */
+.product{text-align:center;padding:120px 20px;}
 
-.product h2{
-  font-size:42px;
-  margin-bottom:20px;
-}
+.product h2{font-size:42px;margin-bottom:20px;}
 
 .card{
   margin-top:50px;
@@ -142,10 +139,7 @@ body{
   margin-inline:auto;
 }
 
-.card img{
-  width:240px;
-  margin:20px 0;
-}
+.card img{width:240px;margin:20px 0;}
 
 .features{
   display:grid;
@@ -160,7 +154,7 @@ body{
   background:rgba(0,255,255,0.05);
 }
 
-/* SCROLL ANIMATION */
+/* SCROLL FADE */
 .fade{
   opacity:0;
   transform:translateY(40px);
@@ -240,7 +234,7 @@ body{
 
 <script>
 
-/* SCROLL FADE */
+/* SCROLL ANIMATION */
 const faders = document.querySelectorAll(".fade");
 
 const appear = new IntersectionObserver(entries=>{
