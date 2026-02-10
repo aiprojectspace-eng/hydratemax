@@ -3,14 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HydrateMax | Premium Alkaline Water</title>
+<title>HydrateMax | Premium Ionized Alkaline Water</title>
 
 <style>
+:root {
+  --primary: #7fcde8;
+  --dark: #0f172a;
+  --soft: #f4f8fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #ffffff;
-  color: #1f2a37;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #eef7fb 100%);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+/* FLOATING BACKGROUND */
+.bg-orb {
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(127,205,232,0.4), rgba(127,205,232,0));
+  filter: blur(40px);
+  animation: float 18s infinite alternate ease-in-out;
+  z-index: -1;
+}
+
+.bg-orb.one { top: -100px; left: -100px; }
+.bg-orb.two { bottom: -150px; right: -150px; animation-delay: 4s; }
+
+@keyframes float {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-80px) translateX(60px); }
 }
 
 .container {
@@ -19,73 +49,122 @@ body {
   padding: 40px 20px;
 }
 
+/* HERO */
 .hero {
   min-height: 100vh;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
 }
 
-.hero-text {
-  flex: 1;
-}
-
-.hero img {
-  max-width: 350px;
-  width: 100%;
-}
-
-h1 {
-  font-size: 48px;
+.hero h1 {
+  font-size: 56px;
   margin-bottom: 20px;
 }
 
-p {
-  font-size: 18px;
+.hero p {
+  font-size: 20px;
+  max-width: 520px;
+}
+
+.hero img {
+  width: 100%;
+  max-width: 380px;
+  animation: bottleFloat 6s ease-in-out infinite;
+}
+
+@keyframes bottleFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
 }
 
 .btn {
   display: inline-block;
-  padding: 14px 26px;
-  margin-right: 10px;
-  margin-top: 15px;
-  background: #7fcde8;
+  padding: 16px 34px;
+  margin-right: 12px;
+  margin-top: 30px;
+  background: var(--primary);
   color: #003344;
   text-decoration: none;
-  border-radius: 30px;
-  font-weight: bold;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .section {
-  padding: 80px 0;
+  padding: 120px 0;
+}
+
+.section h2 {
+  font-size: 42px;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
 }
 
 .card {
-  background: #f3f6f9;
-  padding: 30px;
-  border-radius: 20px;
-  margin-bottom: 20px;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(12px);
+  padding: 40px 30px;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  transition: transform 0.4s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.mineral {
+  max-width: 600px;
+  margin: auto;
+}
+
+.mineral-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 18px;
 }
 
 footer {
+  padding: 80px 20px;
   text-align: center;
-  padding: 40px 20px;
+  font-size: 15px;
   color: #555;
 }
 
-@media (max-width: 768px) {
-  h1 {
-    font-size: 36px;
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .hero img {
+    margin: auto;
   }
 }
 </style>
 </head>
-
 <body>
 
+<div class="bg-orb one"></div>
+<div class="bg-orb two"></div>
+
 <div class="container hero">
-  <div class="hero-text">
+  <div>
     <h1>HydrateMax</h1>
     <p><strong>Premium Ionized Alkaline Water</strong><br>
     Designed for optimal hydration in Malaysia’s hot climate.</p>
@@ -98,19 +177,22 @@ footer {
 </div>
 
 <div class="container section">
-  <div class="card">
-    <h3>pH 8.5 Balanced</h3>
-    <p>Refreshing and suitable for daily hydration.</p>
+  <h2>Why HydrateMax</h2>
+  <div class="cards">
+    <div class="card"><h3>pH 8.5 Balanced</h3><p>Clean, smooth and refreshing daily hydration.</p></div>
+    <div class="card"><h3>Selected Minerals</h3><p>Calcium, magnesium and potassium.</p></div>
+    <div class="card"><h3>Trusted Distribution</h3><p>Distributed by KOIKMA, Malaysia.</p></div>
   </div>
+</div>
 
-  <div class="card">
-    <h3>Selected Minerals</h3>
-    <p>Contains calcium, magnesium and potassium.</p>
-  </div>
-
-  <div class="card">
-    <h3>Trusted Distribution</h3>
-    <p>Distributed by Koperasi Warga Institut Koperasi Malaysia (KOIKMA).</p>
+<div class="container section">
+  <h2>Mineral Composition</h2>
+  <div class="mineral">
+    <div class="mineral-row"><span>pH</span><strong>8.5</strong></div>
+    <div class="mineral-row"><span>Calcium</span><strong>12.38 mg/L</strong></div>
+    <div class="mineral-row"><span>Potassium</span><strong>3.97 mg/L</strong></div>
+    <div class="mineral-row"><span>Magnesium</span><strong>0.67 mg/L</strong></div>
+    <div class="mineral-row"><span>Sodium</span><strong>4.10 mg/L</strong></div>
   </div>
 </div>
 
