@@ -7,49 +7,38 @@
 
 <style>
 :root {
-  --primary: #7fcde8;
-  --dark: #0f172a;
-  --soft: #f4f8fb;
+  --gold: #c9a85c;
+  --dark: #0b0f1a;
+  --soft: #111827;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  background: linear-gradient(180deg, #ffffff 0%, #eef7fb 100%);
-  color: var(--dark);
-  overflow-x: hidden;
+  background: radial-gradient(circle at top, #1b2338 0%, #0b0f1a 60%);
+  color: #f8fafc;
 }
 
-/* FLOATING BACKGROUND */
-.bg-orb {
+/* AMBIENT LIGHT */
+.light {
   position: fixed;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(127,205,232,0.4), rgba(127,205,232,0));
-  filter: blur(40px);
-  animation: float 18s infinite alternate ease-in-out;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(201,168,92,0.25), rgba(0,0,0,0));
+  filter: blur(80px);
+  top: -150px;
+  right: -150px;
   z-index: -1;
-}
-
-.bg-orb.one { top: -100px; left: -100px; }
-.bg-orb.two { bottom: -150px; right: -150px; animation-delay: 4s; }
-
-@keyframes float {
-  from { transform: translateY(0) translateX(0); }
-  to { transform: translateY(-80px) translateX(60px); }
 }
 
 .container {
   max-width: 1100px;
   margin: auto;
-  padding: 40px 20px;
+  padding: 80px 20px;
 }
 
-/* HERO */
 .hero {
   min-height: 100vh;
   display: grid;
@@ -59,92 +48,83 @@ body {
 }
 
 .hero h1 {
-  font-size: 56px;
+  font-size: 64px;
+  letter-spacing: 1px;
   margin-bottom: 20px;
 }
 
 .hero p {
   font-size: 20px;
-  max-width: 520px;
+  color: #d1d5db;
+  max-width: 480px;
 }
 
 .hero img {
   width: 100%;
-  max-width: 380px;
-  animation: bottleFloat 6s ease-in-out infinite;
+  max-width: 360px;
+  animation: float 7s ease-in-out infinite;
 }
 
-@keyframes bottleFloat {
+@keyframes float {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-18px); }
   100% { transform: translateY(0); }
 }
 
 .btn {
   display: inline-block;
-  padding: 16px 34px;
-  margin-right: 12px;
-  margin-top: 30px;
-  background: var(--primary);
-  color: #003344;
-  text-decoration: none;
+  margin-top: 40px;
+  padding: 16px 38px;
   border-radius: 999px;
+  background: linear-gradient(135deg, #e6c97a, #b8943d);
+  color: #0b0f1a;
+  text-decoration: none;
   font-weight: 600;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(201,168,92,0.35);
 }
 
 .section {
-  padding: 120px 0;
+  padding: 140px 0;
 }
 
 .section h2 {
-  font-size: 42px;
+  font-size: 40px;
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 80px;
 }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 40px;
 }
 
 .card {
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(12px);
-  padding: 40px 30px;
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-  transition: transform 0.4s ease;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 50px 40px;
+  border-radius: 28px;
+  backdrop-filter: blur(14px);
 }
 
-.card:hover {
-  transform: translateY(-6px);
+.card h3 {
+  margin-bottom: 12px;
 }
 
-.mineral {
-  max-width: 600px;
-  margin: auto;
-}
-
-.mineral-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 18px;
+.card p {
+  color: #d1d5db;
 }
 
 footer {
-  padding: 80px 20px;
+  padding: 100px 20px;
   text-align: center;
-  font-size: 15px;
-  color: #555;
+  color: #9ca3af;
+  font-size: 14px;
 }
 
 @media (max-width: 900px) {
@@ -152,47 +132,41 @@ footer {
     grid-template-columns: 1fr;
     text-align: center;
   }
-  .hero img {
-    margin: auto;
-  }
+  .hero img { margin: auto; }
 }
 </style>
 </head>
 <body>
 
-<div class="bg-orb one"></div>
-<div class="bg-orb two"></div>
+<div class="light"></div>
 
 <div class="container hero">
   <div>
     <h1>HydrateMax</h1>
     <p><strong>Premium Ionized Alkaline Water</strong><br>
-    Designed for optimal hydration in Malaysia’s hot climate.</p>
+    Crafted for those who demand purity, balance and refinement.</p>
 
     <a class="btn" href="https://wa.me/601155851004">Order via WhatsApp</a>
-    <a class="btn" href="https://wa.me/601155851004">Wholesale & Agent</a>
   </div>
 
   <img src="product.png" alt="HydrateMax Bottle">
 </div>
 
 <div class="container section">
-  <h2>Why HydrateMax</h2>
+  <h2>Refined Hydration</h2>
   <div class="cards">
-    <div class="card"><h3>pH 8.5 Balanced</h3><p>Clean, smooth and refreshing daily hydration.</p></div>
-    <div class="card"><h3>Selected Minerals</h3><p>Calcium, magnesium and potassium.</p></div>
-    <div class="card"><h3>Trusted Distribution</h3><p>Distributed by KOIKMA, Malaysia.</p></div>
-  </div>
-</div>
-
-<div class="container section">
-  <h2>Mineral Composition</h2>
-  <div class="mineral">
-    <div class="mineral-row"><span>pH</span><strong>8.5</strong></div>
-    <div class="mineral-row"><span>Calcium</span><strong>12.38 mg/L</strong></div>
-    <div class="mineral-row"><span>Potassium</span><strong>3.97 mg/L</strong></div>
-    <div class="mineral-row"><span>Magnesium</span><strong>0.67 mg/L</strong></div>
-    <div class="mineral-row"><span>Sodium</span><strong>4.10 mg/L</strong></div>
+    <div class="card">
+      <h3>pH 8.5 Precision</h3>
+      <p>Balanced alkalinity for everyday hydration.</p>
+    </div>
+    <div class="card">
+      <h3>Essential Minerals</h3>
+      <p>Calcium, magnesium and potassium in refined balance.</p>
+    </div>
+    <div class="card">
+      <h3>Trusted Malaysian Distribution</h3>
+      <p>Distributed by Koperasi Warga Institut Koperasi Malaysia (KOIKMA).</p>
+    </div>
   </div>
 </div>
 
