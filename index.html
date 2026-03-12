@@ -1,223 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HydrateMax Ultra</title>
+    <title>Knight POV: Blood & Steel</title>
+    <style>
+        :root {
+            --iron: #71717a;
+            --blood: #991b1b;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        body {
+            margin: 0; background: #000; overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
 
-<style>
+        #game-stage {
+            width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            perspective: 1000px;
+            background: radial-gradient(circle, #27272a 0%, #09090b 100%);
+        }
 
-/* RESET */
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+        /* Pedang Knight */
+        #sword {
+            position: absolute; bottom: -50px; right: 10%;
+            width: 300px; height: 500px;
+            background: url('https://img.icons8.com/color/480/longsword.png') no-repeat center;
+            background-size: contain;
+            transform: rotate(-15deg);
+            transition: transform 0.1s;
+            pointer-events: none;
+            z-index: 100;
+        }
 
-body{
-  background:
-    linear-gradient(rgba(0,15,25,.75), rgba(0,8,15,.85)),
-    url("background.jpg") center/cover no-repeat fixed;
-  color:#e9fbff;
-  overflow-x:hidden;
-}
+        /* Animation Hayun Pedang */
+        .swing {
+            animation: slash 0.3s ease-out;
+        }
 
-/* MOVING GLOW LIGHT */
-body::before{
-  content:"";
-  position:fixed;
-  inset:-20%;
-  background:radial-gradient(circle at 30% 40%, rgba(0,255,255,0.15), transparent 40%);
-  animation:glowMove 12s linear infinite;
-  pointer-events:none;
-}
+        @keyframes slash {
+            0% { transform: rotate(-15deg) translateY(0); }
+            50% { transform: rotate(45deg) translateY(-100px) translateX(-200px); filter: brightness(1.5); }
+            100% { transform: rotate(-15deg) translateY(0); }
+        }
 
-@keyframes glowMove{
-  0%{transform:translateX(0);}
-  50%{transform:translateX(10%);}
-  100%{transform:translateX(0);}
-}
+        /* Musuh (Enemy) */
+        .enemy {
+            position: absolute;
+            width: 200px; height: 300px;
+            background: url('https://img.icons8.com/color/480/knight.png') no-repeat center;
+            background-size: contain;
+            filter: grayscale(1) sepia(1) drop-shadow(0 0 10px red);
+            transition: transform 3s linear; /* Musuh mara */
+        }
 
-/* ICE CRACK */
-.ice{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(120deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 2px, transparent 12px),
-    repeating-linear-gradient(60deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 2px, transparent 14px);
-  opacity:.35;
-}
+        .hit-effect {
+            animation: flash 0.2s;
+        }
 
-/* HEAVY MIST */
-.mist{
-  position:fixed;
-  bottom:-120px;
-  left:-50%;
-  width:200%;
-  height:500px;
-  background:radial-gradient(circle, rgba(200,255,255,0.25), transparent 70%);
-  filter:blur(70px);
-  animation:mistMove 18s linear infinite;
-}
+        @keyframes flash {
+            from { filter: brightness(5); }
+            to { filter: brightness(1); }
+        }
 
-@keyframes mistMove{
-  from{transform:translateX(0);}
-  to{transform:translateX(-25%);}
-}
-
-/* CONTAINER */
-.container{max-width:1200px;margin:auto;padding:60px 20px;}
-
-/* HERO */
-.hero{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  min-height:100vh;
-  gap:40px;
-  position:relative;
-}
-
-/* TEXT */
-.hero h1{
-  font-size:68px;
-  background:linear-gradient(90deg,#7be7ff,#00ffd5);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-
-.hero p{
-  margin:25px 0;
-  line-height:1.7;
-  color:#d6f9ff;
-  max-width:520px;
-}
-
-/* BUTTON */
-.btn{
-  display:inline-block;
-  padding:16px 36px;
-  background:linear-gradient(90deg,#00eaff,#00ffd5);
-  color:#002b33;
-  border-radius:40px;
-  font-weight:600;
-  text-decoration:none;
-  box-shadow:0 0 25px rgba(0,255,255,0.6);
-  transition:.3s;
-}
-
-.btn:hover{
-  transform:translateY(-4px) scale(1.07);
-  box-shadow:0 0 40px rgba(0,255,255,1);
-}
-
-/* FLOATING PRODUCT */
-.hero img{
-  width:380px;
-  animation:float 4s ease-in-out infinite, glowPulse 3s ease-in-out infinite;
-  filter:drop-shadow(0 0 35px rgba(0,255,255,0.6));
-}
-
-@keyframes float{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-22px);}
-}
-
-@keyframes glowPulse{
-  0%,100%{filter:drop-shadow(0 0 25px rgba(0,255,255,.5));}
-  50%{filter:drop-shadow(0 0 55px rgba(0,255,255,1));}
-}
-
-/* MANY PARTICLES */
-.particle{
-  position:absolute;
-  width:6px;height:6px;
-  background:#bffcff;
-  border-radius:50%;
-  opacity:.8;
-  bottom:-10px;
-  animation:rise linear infinite;
-}
-
-@keyframes rise{
-  from{transform:translateY(0) scale(1);opacity:.8;}
-  to{transform:translateY(-120vh) scale(.2);opacity:0;}
-}
-
-/* PRODUCT SECTION */
-.product{text-align:center;padding:120px 20px;}
-
-.card{
-  margin-top:50px;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(0,255,255,0.2);
-  border-radius:25px;
-  padding:40px;
-  box-shadow:0 0 60px rgba(0,255,255,0.2);
-}
-
-/* SCROLL REVEAL */
-.fade{opacity:0;transform:translateY(50px);transition:1s;}
-.fade.show{opacity:1;transform:translateY(0);}
-
-/* MOBILE */
-@media(max-width:900px){
-  .hero{flex-direction:column;text-align:center;}
-  .hero img{width:260px;}
-  .hero h1{font-size:46px;}
-}
-
-</style>
+        #ui {
+            position: absolute; top: 20px; color: gold; font-size: 24px;
+            text-align: center; width: 100%; text-shadow: 2px 2px #000;
+        }
+    </style>
 </head>
+<body onclick="attack()">
 
-<body>
+    <div id="ui">
+        <div>KILLS: <span id="score">0</span></div>
+        <small>CLICK TO SLASH THE INVADER</small>
+    </div>
 
-<div class="ice"></div>
-<div class="mist"></div>
+    <div id="game-stage">
+        <div id="enemy-container"></div>
+        <div id="sword"></div>
+    </div>
 
-<section class="container hero">
+    <script>
+        let score = 0;
+        const sword = document.getElementById('sword');
+        const container = document.getElementById('enemy-container');
 
-  <!-- MANY PARTICLES AUTO -->
-  <script>
-  for(let i=0;i<35;i++){
-    const p=document.createElement("div");
-    p.className="particle";
-    p.style.left=Math.random()*100+"%";
-    p.style.animationDuration=(6+Math.random()*6)+"s";
-    p.style.animationDelay=Math.random()*6+"s";
-    document.currentScript.parentElement.appendChild(p);
-  }
-  </script>
+        function attack() {
+            // Play Animation
+            sword.classList.remove('swing');
+            void sword.offsetWidth; // Trigger reflow
+            sword.classList.add('swing');
 
-  <div class="fade">
-    <h1>HydrateMax</h1>
-    <p>
-      Premium Ionized Alkaline Water
-    </p>
-    <a class="btn" href="https://wa.me/60123456789" target="_blank">
-      Order via WhatsApp
-    </a>
-  </div>
+            // Hit Logic
+            const enemies = document.querySelectorAll('.enemy');
+            enemies.forEach(en => {
+                const scale = new DOMMatrix(getComputedStyle(en).transform).a;
+                if (scale > 2.5) { // Musuh dah dekat baru boleh hit
+                    en.classList.add('hit-effect');
+                    setTimeout(() => {
+                        en.remove();
+                        score++;
+                        document.getElementById('score').innerText = score;
+                        spawnEnemy();
+                    }, 100);
+                }
+            });
+        }
 
-  <img class="fade" src="product.png" alt="HydrateMax">
+        function spawnEnemy() {
+            const en = document.createElement('div');
+            en.classList.add('enemy');
+            en.style.transform = "scale(0.1)"; // Mula dari jauh
+            container.appendChild(en);
 
-</section>
+            // Start mara ke depan
+            setTimeout(() => {
+                en.style.transform = "scale(4)";
+            }, 100);
 
-<section class="product fade">
-  <div class="card">
-    <h2>Ultra Premium Hydration</h2>
-    <p>Cold  • Leak Proof • Durable • Eco Friendly</p>
-  </div>
-</section>
+            // Kalau tak bunuh dalam 3 saat, Game Over
+            setTimeout(() => {
+                if (en.parentElement) {
+                    alert("THY ART DEAD! Final Kills: " + score);
+                    location.reload();
+                }
+            }, 3100);
+        }
 
-<script>
-/* SCROLL */
-const faders=document.querySelectorAll(".fade");
-const obs=new IntersectionObserver(e=>{
-  e.forEach(x=>{if(x.isIntersecting)x.target.classList.add("show");});
-},{threshold:.2});
-faders.forEach(el=>obs.observe(el));
-</script>
-
+        spawnEnemy();
+    </script>
 </body>
 </html>
