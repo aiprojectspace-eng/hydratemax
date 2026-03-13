@@ -1090,7 +1090,8 @@ function openBuild(){
   document.getElementById('building-grid').innerHTML=BUILDINGS.map(b=>{
     const built=c.buildings.includes(b.id);
     const locked=b.requires&&!c.buildings.includes(b.requires);
-    return `<div class="building-card ${built?'built':''} ${locked?'locked':''}" onclick="${!built&&!locked?`buildStructure('${b.id}')`:''}" >
+    const clickHandler = (!built&&!locked) ? `onclick="buildStructure('${b.id}')"` : '';
+    return `<div class="building-card ${built?'built':''} ${locked?'locked':''}" ${clickHandler} >
       <div class="building-icon">${b.icon}</div>
       <div class="building-name">${b.name} ${built?'✅':''}</div>
       <div class="building-cost">🪙${b.goldCost} 🌲${b.woodCost}</div>
