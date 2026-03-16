@@ -1,1421 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<title>Lord of the Realm</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZONE CLEAR — FPS Game</title>
 <style>
-/* ═══════════════════════════════════════
-   FONTS & BASE
-═══════════════════════════════════════ */
-/* fonts loaded via system fallback */
-
-*{margin:0;padding:0;box-sizing:border-box;}
-:root {
-  --parchment: #f4e4b8;
-  --parchment-dark: #d4b896;
-  --ink: #2a1a08;
-  --gold: #c8960c;
-  --gold-light: #f0c030;
-  --blood: #8b1a1a;
-  --forest: #2d5a1b;
-  --stone: #6b6b5a;
-  --sky: #4a7fb5;
-  --panel-bg: rgba(20,10,0,0.92);
-  --border-gold: #8b6914;
-}
-html,body{width:100%;height:100%;overflow:hidden;background:#1a0f00;font-family:'Georgia',serif;}
-
-/* ═══════════════════════════════════════
-   SCREENS
-═══════════════════════════════════════ */
-.screen{display:none;width:100%;height:100%;}
-.screen.active{display:flex;}
-
-/* ═══════════════════════════════════════
-   TITLE SCREEN
-═══════════════════════════════════════ */
-#title-screen{
-  flex-direction:column; align-items:center; justify-content:center;
-  background: radial-gradient(ellipse at center, #3d2200 0%, #1a0f00 70%);
-  position:relative; overflow:hidden;
-}
-#title-screen::before{
-  content:''; position:absolute; inset:0;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 5 L55 25 L55 45 L30 55 L5 45 L5 25Z' fill='none' stroke='%238b690022' stroke-width='1'/%3E%3C/svg%3E") repeat;
-}
-.title-castle{font-size:5rem;margin-bottom:10px;filter:drop-shadow(0 0 20px #c8960c88);}
-.title-main{
-  font-family:'Palatino','Georgia',serif; font-size:3.5rem; font-weight:700;
-  color:var(--gold-light); text-shadow:0 0 30px #c8960c, 2px 2px 0 #2a1a08;
-  letter-spacing:4px; margin-bottom:5px;
-}
-.title-sub{
-  font-family:'Palatino','Georgia',serif; font-size:1.3rem;
-  color:var(--parchment-dark); letter-spacing:8px; margin-bottom:50px;
-}
-.title-btn{
-  padding:14px 50px; margin:8px;
-  background:linear-gradient(180deg,#8b4a00,#5a2d00);
-  border:2px solid var(--gold); border-radius:4px;
-  color:var(--gold-light); font-family:'Palatino','Georgia',serif; font-size:1.1rem;
-  cursor:pointer; letter-spacing:2px; transition:all 0.2s;
-  box-shadow:0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,50,0.2);
-}
-.title-btn:hover{background:linear-gradient(180deg,#b05a00,#7a3d00);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.6);}
-
-/* ═══════════════════════════════════════
-   SETUP SCREEN
-═══════════════════════════════════════ */
-#setup-screen{
-  flex-direction:column; align-items:center; justify-content:center;
-  background: radial-gradient(ellipse at center, #3d2200 0%, #1a0f00 70%);
-}
-.setup-box{
-  background:var(--panel-bg); border:2px solid var(--border-gold);
-  border-radius:8px; padding:40px; width:500px;
-  box-shadow:0 0 40px rgba(200,150,12,0.2);
-}
-.setup-title{font-family:'Palatino','Georgia',serif;font-size:1.8rem;color:var(--gold-light);text-align:center;margin-bottom:30px;}
-.setup-label{color:var(--parchment);font-size:1.1rem;margin-bottom:8px;display:block;}
-.setup-input{
-  width:100%; padding:10px 14px; margin-bottom:20px;
-  background:#2a1a08; border:1px solid var(--border-gold); border-radius:4px;
-  color:var(--parchment); font-family:'Georgia',serif; font-size:1.1rem;
-}
-.setup-select{
-  width:100%; padding:10px 14px; margin-bottom:20px;
-  background:#2a1a08; border:1px solid var(--border-gold); border-radius:4px;
-  color:var(--parchment); font-family:'Georgia',serif; font-size:1.1rem;
-}
-.lord-color-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-.color-swatch{
-  width:36px;height:36px;border-radius:50%;cursor:pointer;
-  border:3px solid transparent; transition:all 0.2s;
-}
-.color-swatch.selected{border-color:var(--gold-light);transform:scale(1.2);}
-
-/* ═══════════════════════════════════════
-   GAME SCREEN
-═══════════════════════════════════════ */
-#game-screen{flex-direction:row;}
-
-/* MAP */
-#map-panel{
-  flex:1; position:relative; overflow:hidden;
-  background:linear-gradient(135deg,#1a3a1a 0%,#2d5a2d 40%,#4a7a3a 100%);
-}
-#map-canvas{width:100%;height:100%;cursor:default;}
-
-/* SIDE PANEL */
-#side-panel{
-  width:300px; background:var(--panel-bg);
-  border-left:2px solid var(--border-gold);
-  display:flex; flex-direction:column; overflow-y:auto;
-}
-.panel-header{
-  background:linear-gradient(180deg,#3d2200,#1a0f00);
-  padding:12px 16px; border-bottom:1px solid var(--border-gold);
-  font-family:'Palatino','Georgia',serif; font-size:0.9rem; color:var(--gold);
-  letter-spacing:1px; text-align:center;
-}
-.lord-badge{
-  display:flex; align-items:center; gap:10px; padding:12px 16px;
-  border-bottom:1px solid #3a2a10;
-}
-.lord-avatar{
-  width:44px;height:44px;border-radius:50%;
-  border:2px solid var(--gold); display:flex;align-items:center;justify-content:center;
-  font-size:1.4rem;flex-shrink:0;
-}
-.lord-info{flex:1;}
-.lord-name{font-family:'Palatino','Georgia',serif;font-size:0.95rem;color:var(--gold-light);}
-.lord-title{font-size:0.8rem;color:var(--parchment-dark);}
-
-/* RESOURCES */
-.resources-grid{
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:8px; padding:12px;
-}
-.res-card{
-  background:rgba(60,30,0,0.6); border:1px solid #4a3010;
-  border-radius:6px; padding:8px 10px; text-align:center;
-}
-.res-icon{font-size:1.4rem;}
-.res-val{font-family:'Palatino','Georgia',serif;font-size:1rem;color:var(--gold-light);}
-.res-label{font-size:0.7rem;color:var(--parchment-dark);text-transform:uppercase;letter-spacing:1px;}
-.res-delta{font-size:0.75rem;margin-top:2px;}
-.res-delta.pos{color:#4caf50;}.res-delta.neg{color:#f44336;}.res-delta.zero{color:#888;}
-
-/* TURN BUTTON */
-.turn-btn{
-  margin:12px; padding:12px;
-  background:linear-gradient(180deg,#8b4a00,#5a2d00);
-  border:2px solid var(--gold); border-radius:6px;
-  color:var(--gold-light); font-family:'Palatino','Georgia',serif; font-size:1rem;
-  cursor:pointer; letter-spacing:1px; transition:all 0.2s;
-}
-.turn-btn:hover{background:linear-gradient(180deg,#b05a00,#7a3d00);}
-
-/* COUNTY DETAIL PANEL */
-#county-panel{
-  background:rgba(20,10,0,0.95); border:2px solid var(--border-gold);
-  border-radius:8px; padding:0; overflow:hidden;
-  position:absolute; bottom:10px; left:10px; width:380px;
-  box-shadow:0 4px 30px rgba(0,0,0,0.8); display:none;
-}
-.cp-header{
-  background:linear-gradient(180deg,#4a2800,#2a1400);
-  padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
-}
-.cp-title{font-family:'Palatino','Georgia',serif;font-size:1rem;color:var(--gold-light);}
-.cp-close{background:none;border:none;color:var(--gold);font-size:1.2rem;cursor:pointer;padding:0 4px;}
-.cp-body{padding:12px;}
-.cp-owner{font-size:0.85rem;margin-bottom:10px;}
-.cp-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.cp-stat{background:rgba(60,30,0,0.5);border:1px solid #4a3010;border-radius:4px;padding:6px 8px;text-align:center;}
-.cp-stat-val{font-family:'Palatino','Georgia',serif;font-size:1.1rem;color:var(--gold-light);}
-.cp-stat-lbl{font-size:0.7rem;color:var(--parchment-dark);}
-.cp-actions{display:flex;flex-wrap:wrap;gap:6px;}
-.cp-btn{
-  flex:1;min-width:100px;padding:8px;
-  background:linear-gradient(180deg,#5a3000,#3a1a00);
-  border:1px solid var(--border-gold);border-radius:4px;
-  color:var(--parchment);font-family:'Georgia',serif;font-size:0.9rem;
-  cursor:pointer;transition:all 0.15s;text-align:center;
-}
-.cp-btn:hover{background:linear-gradient(180deg,#7a4000,#5a2a00);color:var(--gold-light);}
-.cp-btn:disabled{opacity:0.4;cursor:default;}
-
-/* RECRUIT MODAL */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.8);
-  display:none;align-items:center;justify-content:center;z-index:100;
-}
-.modal-overlay.show{display:flex;}
-.modal-box{
-  background:var(--panel-bg);border:2px solid var(--border-gold);
-  border-radius:8px;padding:0;width:480px;overflow:hidden;
-  box-shadow:0 0 60px rgba(200,150,12,0.3);
-}
-.modal-header{
-  background:linear-gradient(180deg,#4a2800,#2a1400);
-  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
-}
-.modal-title{font-family:'Palatino','Georgia',serif;font-size:1.1rem;color:var(--gold-light);}
-.modal-close{background:none;border:none;color:var(--gold);font-size:1.3rem;cursor:pointer;}
-.modal-body{padding:18px;}
-
-.troop-row{
-  display:flex;align-items:center;gap:12px;padding:10px 0;
-  border-bottom:1px solid #3a2010;
-}
-.troop-icon{font-size:1.8rem;width:40px;text-align:center;}
-.troop-info{flex:1;}
-.troop-name{font-family:'Palatino','Georgia',serif;font-size:0.95rem;color:var(--gold-light);}
-.troop-desc{font-size:0.78rem;color:var(--parchment-dark);}
-.troop-cost{font-size:0.8rem;color:#f0c030;margin-top:2px;}
-.troop-ctrl{display:flex;align-items:center;gap:6px;}
-.troop-btn{
-  width:28px;height:28px;background:#3a2000;border:1px solid var(--border-gold);
-  border-radius:4px;color:var(--gold-light);font-size:1rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.troop-btn:hover{background:#5a3000;}
-.troop-count{
-  width:40px;text-align:center;background:#2a1a08;border:1px solid var(--border-gold);
-  border-radius:4px;color:var(--parchment);padding:4px;font-family:'Palatino','Georgia',serif;
-}
-.recruit-total{
-  margin-top:14px;padding:10px;background:rgba(60,30,0,0.5);
-  border:1px solid var(--border-gold);border-radius:6px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.recruit-cost-lbl{font-family:'Palatino','Georgia',serif;font-size:0.9rem;color:var(--parchment);}
-.recruit-cost-val{font-family:'Palatino','Georgia',serif;font-size:1rem;color:var(--gold-light);}
-.recruit-confirm{
-  width:100%;margin-top:10px;padding:10px;
-  background:linear-gradient(180deg,#8b4a00,#5a2d00);
-  border:2px solid var(--gold);border-radius:6px;
-  color:var(--gold-light);font-family:'Palatino','Georgia',serif;font-size:1rem;
-  cursor:pointer;transition:all 0.2s;
-}
-.recruit-confirm:hover{background:linear-gradient(180deg,#b05a00,#7a3d00);}
-
-/* ARMY PANEL */
-.army-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #3a2010;}
-.army-icon{font-size:1.1rem;width:24px;text-align:center;}
-.army-name{flex:1;font-size:0.85rem;color:var(--parchment);}
-.army-count{font-family:'Palatino','Georgia',serif;font-size:0.9rem;color:var(--gold-light);}
-
-/* DIPLOMACY MODAL */
-.diplo-lord-row{
-  display:flex;align-items:center;gap:12px;padding:10px;
-  border:1px solid #4a3010;border-radius:6px;margin-bottom:8px;
-  background:rgba(40,20,0,0.5);
-}
-.diplo-avatar{width:36px;height:36px;border-radius:50%;border:2px solid var(--border-gold);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
-.diplo-name{flex:1;font-family:'Palatino','Georgia',serif;font-size:0.9rem;color:var(--gold-light);}
-.diplo-status{font-size:0.75rem;padding:2px 8px;border-radius:10px;}
-.diplo-status.war{background:#8b1a1a;color:#ffaaaa;}
-.diplo-status.peace{background:#1a4a1a;color:#aaffaa;}
-.diplo-status.tribute{background:#4a4a1a;color:#ffffaa;}
-.diplo-actions{display:flex;gap:6px;margin-top:6px;}
-.diplo-btn{
-  flex:1;padding:5px;font-size:0.78rem;
-  background:#3a2000;border:1px solid var(--border-gold);border-radius:4px;
-  color:var(--parchment);cursor:pointer;font-family:'Georgia',serif;
-}
-.diplo-btn:hover{background:#5a3000;color:var(--gold-light);}
-
-/* FARM MODAL */
-.farm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.farm-card{
-  background:rgba(30,50,10,0.6);border:1px solid #4a6020;border-radius:6px;padding:10px;text-align:center;
-}
-.farm-icon{font-size:2rem;margin-bottom:4px;}
-.farm-name{font-family:'Palatino','Georgia',serif;font-size:0.85rem;color:#90cc50;}
-.farm-val{font-size:0.8rem;color:var(--parchment-dark);}
-.farm-input{
-  width:60px;padding:4px;margin-top:4px;
-  background:#1a3010;border:1px solid #4a6020;border-radius:4px;
-  color:var(--parchment);text-align:center;font-family:'Palatino','Georgia',serif;
-}
-
-/* BUILDING MODAL */
-.building-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.building-card{
-  background:rgba(40,20,0,0.6);border:1px solid #4a3010;border-radius:6px;
-  padding:10px;text-align:center;cursor:pointer;transition:all 0.2s;
-}
-.building-card:hover{background:rgba(70,35,0,0.7);border-color:var(--gold);}
-.building-card.built{border-color:#4caf50;background:rgba(20,50,20,0.5);}
-.building-card.locked{opacity:0.5;cursor:default;}
-.building-icon{font-size:2rem;margin-bottom:4px;}
-.building-name{font-family:'Palatino','Georgia',serif;font-size:0.8rem;color:var(--gold-light);}
-.building-cost{font-size:0.72rem;color:#f0c030;margin-top:2px;}
-.building-effect{font-size:0.7rem;color:var(--parchment-dark);margin-top:2px;}
-
-/* LOG */
-#event-log{
-  position:absolute;top:10px;right:310px;width:280px;
-  max-height:200px;overflow-y:auto;
-  background:rgba(10,5,0,0.85);border:1px solid var(--border-gold);
-  border-radius:6px;padding:8px;font-size:0.78rem;
-}
-.log-entry{padding:3px 0;border-bottom:1px solid #2a1a08;color:var(--parchment-dark);}
-.log-entry.important{color:var(--gold-light);}
-.log-entry.war{color:#ff6666;}
-.log-entry.peace{color:#66ff66;}
-
-/* TURN DISPLAY */
-#turn-display{
-  position:absolute;top:10px;left:10px;
-  background:rgba(10,5,0,0.85);border:1px solid var(--border-gold);
-  border-radius:6px;padding:8px 14px;
-  font-family:'Palatino','Georgia',serif;font-size:0.9rem;color:var(--gold-light);
-}
-
-/* MINIMAP */
-#minimap{
-  position:absolute;bottom:10px;right:310px;
-  width:160px;height:120px;
-  background:rgba(10,5,0,0.85);border:1px solid var(--border-gold);
-  border-radius:6px;overflow:hidden;
-}
-
-/* TOAST */
-#toast{
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  background:rgba(20,10,0,0.95);border:1px solid var(--gold);
-  border-radius:6px;padding:10px 20px;
-  font-family:'Palatino','Georgia',serif;font-size:0.9rem;color:var(--gold-light);
-  opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:200;
-}
-#toast.show{opacity:1;}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:#1a0f00;}
-::-webkit-scrollbar-thumb{background:var(--border-gold);border-radius:3px;}
-
-/* COUNTY TOOLTIP */
-#county-tooltip{
-  position:absolute;pointer-events:none;
-  background:rgba(10,5,0,0.95);border:1px solid var(--border-gold);
-  border-radius:6px;padding:8px 12px;font-size:0.8rem;
-  color:var(--parchment);display:none;z-index:50;min-width:140px;
-}
-.tooltip-name{font-family:'Palatino','Georgia',serif;color:var(--gold-light);margin-bottom:4px;}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; user-select: none; }
+canvas { display: block; width: 100vw; height: 100vh; }
+#hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+#crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 24px; height: 24px; }
+#crosshair::before, #crosshair::after { content: ''; position: absolute; background: rgba(255,255,255,0.9); }
+#crosshair::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
+#crosshair::after { width: 100%; height: 2px; top: 50%; transform: translateY(-50%); }
+#crosshair-dot { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: #f0c040; border-radius: 50%; transform: translate(-50%,-50%); }
+#stats { position: absolute; top: 16px; left: 16px; font-size: 13px; line-height: 2; letter-spacing: 1px; }
+#stats span { color: #f0c040; font-weight: bold; }
+#ammo-wrap { position: absolute; bottom: 24px; right: 24px; text-align: right; }
+#ammo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
+#ammo-label { font-size: 11px; color: #888; letter-spacing: 2px; margin-top: 2px; }
+#health-bar-wrap { position: absolute; bottom: 24px; left: 24px; }
+#health-label { font-size: 11px; color: #888; letter-spacing: 2px; margin-bottom: 6px; }
+#health-bar { width: 180px; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
+#health-fill { height: 100%; width: 100%; background: #2ecc71; transition: width 0.15s, background 0.3s; border-radius: 4px; }
+#reload-bar-wrap { position: absolute; bottom: 60px; left: 24px; display: none; }
+#reload-label { font-size: 10px; color: #f0c040; letter-spacing: 2px; margin-bottom: 4px; }
+#reload-bar { width: 180px; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+#reload-fill { height: 100%; width: 0%; background: #f0c040; transition: width 0.05s linear; border-radius: 2px; }
+#wave-banner { position: absolute; top: 45%; left: 50%; transform: translate(-50%,-50%); font-size: 36px; font-weight: bold; color: #f0c040; letter-spacing: 4px; opacity: 0; transition: opacity 0.4s; pointer-events: none; text-shadow: 0 0 30px rgba(240,192,64,0.5); }
+#overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+#overlay h1 { font-size: 52px; color: #f0c040; letter-spacing: 6px; margin-bottom: 8px; }
+#overlay .subtitle { font-size: 12px; color: #555; letter-spacing: 4px; margin-top: -16px; }
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin: 8px 0; }
+.ctrl { font-size: 13px; color: #666; }
+.ctrl span { color: #aaa; }
+#start-btn { margin-top: 16px; padding: 14px 48px; font-size: 15px; font-family: 'Courier New', monospace; background: transparent; color: #f0c040; border: 1px solid #f0c040; cursor: pointer; font-weight: bold; letter-spacing: 3px; transition: all 0.2s; }
+#start-btn:hover { background: #f0c040; color: #111; }
+#gameover { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+#gameover h1 { font-size: 52px; color: #e74c3c; letter-spacing: 6px; }
+#go-details { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 8px 0; }
+.go-stat { text-align: center; padding: 12px 20px; border: 1px solid #333; }
+.go-stat-val { font-size: 28px; color: #f0c040; font-weight: bold; }
+.go-stat-label { font-size: 10px; color: #555; letter-spacing: 2px; margin-top: 4px; }
+#restart-btn { padding: 14px 48px; font-size: 15px; font-family: 'Courier New', monospace; background: transparent; color: #e74c3c; border: 1px solid #e74c3c; cursor: pointer; font-weight: bold; letter-spacing: 3px; transition: all 0.2s; margin-top: 8px; }
+#restart-btn:hover { background: #e74c3c; color: #fff; }
+#hit-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(231,76,60,0); pointer-events: none; transition: background 0.08s; }
+#shoot-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,200,0); pointer-events: none; transition: background 0.06s; }
+#minimap { position: absolute; top: 16px; right: 16px; border: 1px solid #333; border-radius: 2px; }
+#pointer-hint { position: absolute; bottom: 50%; left: 50%; transform: translate(-50%, 50%); font-size: 11px; color: #555; letter-spacing: 2px; }
+#reloading-text { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); font-size: 13px; color: #f0c040; letter-spacing: 3px; display: none; }
 </style>
 </head>
 <body>
-
-<!-- TITLE SCREEN -->
-<div id="title-screen" class="screen active">
-  <div class="title-castle">🏰</div>
-  <div class="title-main">LORD OF THE REALM</div>
-  <div class="title-sub">CONQUER · RULE · PREVAIL</div>
-  <button class="title-btn" onclick="showSetup()">⚔️ New Campaign</button>
-  <button class="title-btn" onclick="showHelp()">📜 How to Play</button>
+<canvas id="canvas"></canvas>
+<div id="hud">
+  <div id="crosshair"><div id="crosshair-dot"></div></div>
+  <div id="stats">
+    <div>WAVE &nbsp;<span id="wave-num">1</span></div>
+    <div>SCORE <span id="score">0</span></div>
+    <div>KILLS &nbsp;<span id="kills">0</span></div>
+  </div>
+  <canvas id="minimap" width="110" height="110"></canvas>
+  <div id="health-bar-wrap">
+    <div id="health-label">HEALTH</div>
+    <div id="health-bar"><div id="health-fill"></div></div>
+  </div>
+  <div id="reload-bar-wrap">
+    <div id="reload-label">RELOADING</div>
+    <div id="reload-bar"><div id="reload-fill"></div></div>
+  </div>
+  <div id="ammo-wrap">
+    <div id="ammo">30 / 90</div>
+    <div id="ammo-label">AMMO</div>
+  </div>
+  <div id="wave-banner"></div>
+  <div id="hit-flash"></div>
+  <div id="shoot-flash"></div>
+  <div id="pointer-hint">CLICK TO LOCK MOUSE</div>
+  <div id="reloading-text">RELOADING...</div>
 </div>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen" class="screen">
-  <div class="setup-box">
-    <div class="setup-title">⚔️ Choose Your Lord</div>
-    <label class="setup-label">Your Name</label>
-    <input class="setup-input" id="lord-name-input" type="text" value="Lord Aldric" maxlength="20"/>
-    <label class="setup-label">Coat of Arms</label>
-    <div class="lord-color-row" id="color-picker"></div>
-    <label class="setup-label">Difficulty</label>
-    <select class="setup-select" id="difficulty-select">
-      <option value="easy">Peasant (Easy)</option>
-      <option value="normal" selected>Knight (Normal)</option>
-      <option value="hard">King (Hard)</option>
-    </select>
-    <label class="setup-label">Number of AI Lords</label>
-    <select class="setup-select" id="ai-count-select">
-      <option value="2">2 Lords</option>
-      <option value="3" selected>3 Lords</option>
-      <option value="4">4 Lords</option>
-    </select>
-    <button class="title-btn" style="width:100%;margin-top:10px" onclick="startGame()">🏰 Begin Campaign!</button>
-    <button class="title-btn" style="width:100%;margin-top:6px;background:linear-gradient(180deg,#3a2000,#1a0f00)" onclick="showTitle()">← Back</button>
+<div id="overlay">
+  <h1>ZONE CLEAR</h1>
+  <p class="subtitle">SURVIVE THE WAVES</p>
+  <div class="controls-grid">
+    <div class="ctrl"><span>WASD</span> — Move</div>
+    <div class="ctrl"><span>MOUSE</span> — Look</div>
+    <div class="ctrl"><span>LMB</span> — Shoot</div>
+    <div class="ctrl"><span>R</span> — Reload</div>
+    <div class="ctrl"><span>SHIFT</span> — Sprint</div>
+    <div class="ctrl"><span>ESC</span> — Unlock mouse</div>
   </div>
+  <button id="start-btn">[ START GAME ]</button>
 </div>
 
-<!-- GAME SCREEN -->
-<div id="game-screen" class="screen">
-  <div id="map-panel">
-    <canvas id="map-canvas"></canvas>
-    <div id="turn-display">Turn <span id="turn-num">1</span> &nbsp;|&nbsp; Year <span id="year-num">1066</span></div>
-    <div id="event-log"></div>
-    <canvas id="minimap"></canvas>
-    <div id="county-tooltip"></div>
-    <div id="county-panel">
-      <div class="cp-header">
-        <span class="cp-title" id="cp-name">County Name</span>
-        <button class="cp-close" onclick="closeCountyPanel()">✕</button>
-      </div>
-      <div class="cp-body">
-        <div class="cp-owner" id="cp-owner"></div>
-        <div class="cp-stats" id="cp-stats"></div>
-        <div class="cp-actions" id="cp-actions"></div>
-      </div>
-    </div>
+<div id="gameover">
+  <h1>YOU DIED</h1>
+  <div id="go-details">
+    <div class="go-stat"><div class="go-stat-val" id="go-score">0</div><div class="go-stat-label">SCORE</div></div>
+    <div class="go-stat"><div class="go-stat-val" id="go-kills">0</div><div class="go-stat-label">KILLS</div></div>
+    <div class="go-stat"><div class="go-stat-val" id="go-wave">1</div><div class="go-stat-label">WAVE</div></div>
   </div>
-
-  <div id="side-panel">
-    <div class="panel-header">⚔️ YOUR REALM ⚔️</div>
-    <div class="lord-badge">
-      <div class="lord-avatar" id="player-avatar">👑</div>
-      <div class="lord-info">
-        <div class="lord-name" id="player-name-display">Lord</div>
-        <div class="lord-title" id="player-title-display">Duke of the Realm</div>
-      </div>
-    </div>
-    <div class="panel-header" style="font-size:0.75rem">📦 RESOURCES</div>
-    <div class="resources-grid" id="resources-grid"></div>
-    <div class="panel-header" style="font-size:0.75rem">⚔️ ARMIES</div>
-    <div id="army-list" style="padding:8px"></div>
-    <div class="panel-header" style="font-size:0.75rem">🏰 COUNTIES (<span id="county-count">0</span>)</div>
-    <div id="county-list" style="padding:8px;flex:1"></div>
-    <button class="turn-btn" onclick="endTurn()">⏭ End Turn</button>
-    <button class="turn-btn" style="background:linear-gradient(180deg,#1a3a5a,#0a1a2a);border-color:#4a7fb5;margin-top:0" onclick="openDiplo()">🤝 Diplomacy</button>
-  </div>
+  <button id="restart-btn">[ PLAY AGAIN ]</button>
 </div>
-
-<!-- RECRUIT MODAL -->
-<div class="modal-overlay" id="recruit-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">⚔️ Recruit Troops</span>
-      <button class="modal-close" onclick="closeModal('recruit-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="troop-list"></div>
-      <div class="recruit-total">
-        <span class="recruit-cost-lbl">Total Cost:</span>
-        <span class="recruit-cost-val"><span id="recruit-gold-cost">0</span>🪙 <span id="recruit-food-cost">0</span>🍞</span>
-      </div>
-      <button class="recruit-confirm" onclick="confirmRecruit()">⚔️ Recruit!</button>
-    </div>
-  </div>
-</div>
-
-<!-- FARM MODAL -->
-<div class="modal-overlay" id="farm-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">🌾 Manage Farming</span>
-      <button class="modal-close" onclick="closeModal('farm-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="farm-grid" id="farm-grid"></div>
-      <button class="recruit-confirm" onclick="confirmFarm()">🌾 Apply Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- BUILD MODAL -->
-<div class="modal-overlay" id="build-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">🏗️ Construct Buildings</span>
-      <button class="modal-close" onclick="closeModal('build-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="building-grid" id="building-grid"></div>
-    </div>
-  </div>
-</div>
-
-<!-- DIPLOMACY MODAL -->
-<div class="modal-overlay" id="diplo-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">🤝 Diplomacy</span>
-      <button class="modal-close" onclick="closeModal('diplo-modal')">✕</button>
-    </div>
-    <div class="modal-body" id="diplo-body"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════
-const LORD_COLORS = ['#c0392b','#2980b9','#27ae60','#8e44ad','#e67e22','#1abc9c','#f39c12','#34495e'];
-const LORD_NAMES  = ['Lord Malachar','Duke Serifan','Baron Vortex','Count Aldrik','Prince Drakon','Lady Mireva'];
-const LORD_EMOJIS = ['👑','⚔️','🛡️','🏹','🐉','🌙','🦅','🐺'];
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const miniCanvas = document.getElementById('minimap');
+const miniCtx = miniCanvas.getContext('2d');
 
-const TROOP_TYPES = [
-  {id:'peasant',  name:'Peasant Levy',  icon:'👨‍🌾', attack:1, defense:1, goldCost:5,  foodCost:2,  desc:'Cheap but weak. Available in large numbers.'},
-  {id:'archer',   name:'Archer',        icon:'🏹', attack:3, defense:2, goldCost:15, foodCost:3,  desc:'Ranged. Effective against infantry.'},
-  {id:'pikeman',  name:'Pikeman',       icon:'🗡️', attack:4, defense:3, goldCost:20, foodCost:4,  desc:'Anti-cavalry. Solid frontline.'},
-  {id:'knight',   name:'Knight',        icon:'🏇', attack:8, defense:6, goldCost:60, foodCost:8,  desc:'Elite heavy cavalry. Very powerful.'},
-  {id:'catapult', name:'Catapult',      icon:'💣', attack:10,defense:1, goldCost:80, foodCost:5,  desc:'Siege weapon. Devastating vs castles.'},
-];
+let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
 
-const BUILDINGS = [
-  {id:'farm',     name:'Granary',     icon:'🏚️', goldCost:80,  woodCost:40, effect:'+30% food production', requires:null},
-  {id:'barracks', name:'Barracks',    icon:'⚔️', goldCost:120, woodCost:60, effect:'Unlocks advanced troops', requires:null},
-  {id:'market',   name:'Market',      icon:'🏪', goldCost:100, woodCost:50, effect:'+20% gold income', requires:null},
-  {id:'mill',     name:'Windmill',    icon:'🌬️', goldCost:90,  woodCost:80, effect:'+25% grain output', requires:'farm'},
-  {id:'tower',    name:'Watch Tower', icon:'🗼', goldCost:150, woodCost:100,effect:'+2 defense, reveal enemy moves', requires:null},
-  {id:'castle',   name:'Castle Wall', icon:'🏰', goldCost:300, woodCost:200,effect:'+5 defense, -30% siege damage', requires:'tower'},
-];
-
-// ═══════════════════════════════════════
-// GAME STATE
-// ═══════════════════════════════════════
-let G = {
-  turn: 1,
-  year: 1066,
-  selectedCounty: null,
-  recruitTarget: null,
-  lords: [],
-  counties: [],
-  player: null,
-  difficulty: 'normal',
-  log: [],
-};
-
-// ═══════════════════════════════════════
-// MAP LAYOUT — 20 counties
-// ═══════════════════════════════════════
-const COUNTY_DEFS = [
-  {id:0,  name:'Ironhold',    x:0.15,y:0.15, terrain:'mountain', pop:800,  gold:40,food:20,iron:60,wood:20},
-  {id:1,  name:'Greenfield',  x:0.30,y:0.10, terrain:'plains',   pop:1200, gold:30,food:80,iron:10,wood:40},
-  {id:2,  name:'Ashford',     x:0.50,y:0.12, terrain:'plains',   pop:900,  gold:35,food:60,iron:20,wood:30},
-  {id:3,  name:'Stonevale',   x:0.70,y:0.15, terrain:'mountain', pop:700,  gold:50,food:20,iron:80,wood:10},
-  {id:4,  name:'Mirefall',    x:0.85,y:0.20, terrain:'swamp',    pop:600,  gold:20,food:30,iron:10,wood:50},
-  {id:5,  name:'Thornwood',   x:0.10,y:0.38, terrain:'forest',   pop:800,  gold:25,food:40,iron:10,wood:90},
-  {id:6,  name:'Riverdale',   x:0.28,y:0.32, terrain:'plains',   pop:1400, gold:60,food:90,iron:20,wood:30},
-  {id:7,  name:'Castlemark',  x:0.48,y:0.30, terrain:'castle',   pop:1800, gold:80,food:50,iron:40,wood:20},
-  {id:8,  name:'Goldport',    x:0.67,y:0.28, terrain:'plains',   pop:1600, gold:100,food:70,iron:20,wood:20},
-  {id:9,  name:'Darkwood',    x:0.87,y:0.38, terrain:'forest',   pop:700,  gold:20,food:30,iron:10,wood:100},
-  {id:10, name:'Sunhaven',    x:0.12,y:0.58, terrain:'plains',   pop:1100, gold:45,food:80,iron:15,wood:25},
-  {id:11, name:'Coldpeak',    x:0.30,y:0.55, terrain:'mountain', pop:600,  gold:60,food:10,iron:70,wood:5},
-  {id:12, name:'Middlefen',   x:0.50,y:0.52, terrain:'plains',   pop:1300, gold:55,food:75,iron:25,wood:35},
-  {id:13, name:'Saltmere',    x:0.70,y:0.52, terrain:'coastal',  pop:1500, gold:90,food:60,iron:15,wood:20},
-  {id:14, name:'Brackwater',  x:0.88,y:0.58, terrain:'swamp',    pop:500,  gold:15,food:20,iron:5, wood:40},
-  {id:15, name:'Westmarch',   x:0.10,y:0.76, terrain:'plains',   pop:900,  gold:35,food:65,iron:20,wood:30},
-  {id:16, name:'Hammerfall',  x:0.30,y:0.75, terrain:'mountain', pop:800,  gold:55,food:15,iron:90,wood:10},
-  {id:17, name:'Fairhaven',   x:0.50,y:0.78, terrain:'plains',   pop:1200, gold:50,food:80,iron:20,wood:35},
-  {id:18, name:'Redcliff',    x:0.70,y:0.75, terrain:'coastal',  pop:1100, gold:75,food:55,iron:10,wood:15},
-  {id:19, name:'Endmoor',     x:0.88,y:0.80, terrain:'swamp',    pop:400,  gold:10,food:15,iron:5, wood:30},
-];
-
-const TERRAIN_COLOR = {
-  plains:   '#5a8a30', mountain: '#7a6a50', forest: '#2d5a20',
-  swamp:    '#4a6a40', castle:   '#6a5a4a', coastal:'#3a6a8a',
-};
-const TERRAIN_ICON = {
-  plains:'🌾', mountain:'⛰️', forest:'🌲', swamp:'🌿', castle:'🏰', coastal:'🌊',
-};
-
-// ═══════════════════════════════════════
-// SETUP UI
-// ═══════════════════════════════════════
-let selectedColor = LORD_COLORS[0];
-
-function initColorPicker(){
-  const el = document.getElementById('color-picker');
-  el.innerHTML = '';
-  LORD_COLORS.forEach((c,i) => {
-    const sw = document.createElement('div');
-    sw.className = 'color-swatch' + (i===0?' selected':'');
-    sw.style.background = c;
-    sw.onclick = () => {
-      document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
-      sw.classList.add('selected');
-      selectedColor = c;
-    };
-    el.appendChild(sw);
-  });
-}
-
-function showTitle(){ setScreen('title-screen'); }
-function showSetup(){ initColorPicker(); setScreen('setup-screen'); }
-function showHelp(){
-  toast('📜 Click counties to manage them. End turn to advance time. Build, recruit, and conquer!', 5000);
-}
-
-function setScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// ═══════════════════════════════════════
-// GAME INIT
-// ═══════════════════════════════════════
-function startGame(){
-  const name = document.getElementById('lord-name-input').value.trim() || 'Lord Aldric';
-  const diff = document.getElementById('difficulty-select').value;
-  const aiCount = parseInt(document.getElementById('ai-count-select').value);
-  G.difficulty = diff;
-
-  // Create counties
-  G.counties = COUNTY_DEFS.map(def => ({
-    ...def,
-    owner: null,
-    troops: {peasant:0,archer:0,pikeman:0,knight:0,catapult:0},
-    buildings: [],
-    farmLevel: 1,
-    ironMines: 0,
-    defense: 1,
-    morale: 80,
-  }));
-
-  // Create player lord
-  G.player = {
-    id: 'player', name, color: selectedColor,
-    emoji: '👑',
-    gold: 200, food: 150, iron: 50, wood: 80,
-    goldIncome:0, foodBalance:0,
-    relations: {},
-    isAI: false,
-  };
-
-  // Create AI lords
-  const aiLords = [];
-  for(let i=0;i<aiCount;i++){
-    const col = LORD_COLORS.find(c=>c!==selectedColor&&!aiLords.find(l=>l.color===c)) || LORD_COLORS[i+1];
-    aiLords.push({
-      id:'ai'+i, name:LORD_NAMES[i], color:col,
-      emoji: LORD_EMOJIS[i+1],
-      gold:200, food:150, iron:50, wood:80,
-      goldIncome:0, foodBalance:0,
-      relations: {},
-      isAI: true,
-    });
+const MAP_W = 24, MAP_H = 24, CELL = 64;
+const map = [];
+const rooms = [[2,2,8,8],[12,2,20,8],[2,12,8,20],[12,12,20,20],[9,9,14,14]];
+for (let y = 0; y < MAP_H; y++) {
+  map[y] = [];
+  for (let x = 0; x < MAP_W; x++) {
+    if (x===0||y===0||x===MAP_W-1||y===MAP_H-1) { map[y][x]=1; continue; }
+    let inRoom = false;
+    for (const [rx,ry,rx2,ry2] of rooms) if (x>=rx&&x<=rx2&&y>=ry&&y<=ry2) { inRoom=true; break; }
+    if (inRoom) { map[y][x]=0; continue; }
+    if ((x===8||x===12||x===20)&&(y>1&&y<MAP_H-1)) { map[y][x]=0; continue; }
+    if ((y===8||y===12||y===20)&&(x>1&&x<MAP_W-1)) { map[y][x]=0; continue; }
+    map[y][x]=1;
   }
-  G.lords = [G.player, ...aiLords];
+}
 
-  // Set default relations
-  G.lords.forEach(a => {
-    G.lords.forEach(b => {
-      if(a.id!==b.id) a.relations[b.id] = 'war'; // start at war
-    });
-  });
+const player = {x:2.5*CELL,y:2.5*CELL,angle:0,health:100,maxHealth:100,ammo:30,maxAmmo:30,reserve:90,speed:3.0,score:0,kills:0};
+const keys = {};
+let enemies=[],bullets=[],particles=[];
+let wave=1,gameActive=false,reloading=false,reloadProgress=0,reloadTotal=90;
+let shootCooldown=0,mouseLocked=false;
 
-  // Assign starting counties
-  // Player gets county 7 (Castlemark - center)
-  assignCounty(G.counties[7], G.player);
-  G.counties[7].troops.knight = 3;
-  G.counties[7].troops.archer = 5;
+function spawnWave(w) {
+  const count = 3 + w*2;
+  for (let i=0;i<count;i++) {
+    let ex,ey,tries=0;
+    do {
+      ex=(1+Math.floor(Math.random()*(MAP_W-2)))*CELL+CELL/2;
+      ey=(1+Math.floor(Math.random()*(MAP_H-2)))*CELL+CELL/2;
+      tries++;
+    } while((isSolid(ex,ey)||dist(ex,ey,player.x,player.y)<250)&&tries<100);
+    enemies.push({x:ex,y:ey,angle:0,health:30+w*12,maxHealth:30+w*12,speed:0.75+w*0.08,shootTimer:60+Math.random()*80,hitFlash:0,type:w>3&&Math.random()<0.3?'heavy':'normal'});
+  }
+}
 
-  // AI lords get random starting counties
-  const aiStartIds = [[0,1,5],[3,4,9],[15,16,19],[10,18,19]];
-  aiLords.forEach((ai,i) => {
-    const ids = aiStartIds[i]||[i*3];
-    ids.forEach(cid => {
-      if(G.counties[cid]) assignCounty(G.counties[cid], ai);
-    });
-    if(G.counties[ids[0]]){
-      G.counties[ids[0]].troops.peasant = 8;
-      G.counties[ids[0]].troops.archer = 3;
+function dist(ax,ay,bx,by) { return Math.hypot(ax-bx,ay-by); }
+
+function isSolid(x,y) {
+  const gx=Math.floor(x/CELL),gy=Math.floor(y/CELL);
+  if(gx<0||gy<0||gx>=MAP_W||gy>=MAP_H) return true;
+  return map[gy][gx]===1;
+}
+
+function moveEntity(e,dx,dy) {
+  const r=18;
+  if(!isSolid(e.x+dx+Math.sign(dx)*r,e.y)) e.x+=dx;
+  if(!isSolid(e.x,e.y+dy+Math.sign(dy)*r)) e.y+=dy;
+}
+
+const RAYS=480, FOV=Math.PI/2.4;
+
+function castRay(angle) {
+  const cos=Math.cos(angle),sin=Math.sin(angle);
+  let rx=player.x,ry=player.y;
+  for(let s=1;s<700;s+=2) {
+    rx+=cos*2; ry+=sin*2;
+    const gx=Math.floor(rx/CELL),gy=Math.floor(ry/CELL);
+    if(gx<0||gy<0||gx>=MAP_W||gy>=MAP_H||map[gy][gx]===1) return {d:s};
+  }
+  return {d:700};
+}
+
+const floorCols = ['#1a1a1a','#1c1c1c','#181818','#202020'];
+const ceilCols  = ['#0d1520','#0e1825','#0c1318','#101b28'];
+
+function drawScene() {
+  for(let y=0;y<H;y++) {
+    const t=y/H;
+    if(y<H/2) {
+      const ci=Math.floor(t*ceilCols.length*2)%ceilCols.length;
+      ctx.fillStyle=ceilCols[ci];
+    } else {
+      const fi=Math.floor((t-0.5)*floorCols.length*2)%floorCols.length;
+      ctx.fillStyle=floorCols[fi];
     }
-  });
+    ctx.fillRect(0,y,W,1);
+  }
 
-  // Init UI
-  setScreen('game-screen');
-  updateSidePanel();
-  initMapCanvas();
-  drawMap();
-  addLog('⚔️ The campaign begins! Conquer all counties to win!', 'important');
-  toast('Campaign started! Click counties to manage your realm.');
+  for(let i=0;i<RAYS;i++) {
+    const angle=player.angle-FOV/2+(i/RAYS)*FOV;
+    const {d}=castRay(angle);
+    const fixedD=d*Math.cos(angle-player.angle);
+    const wallH=Math.min(H,(CELL/fixedD)*(W*0.85));
+    const shade=Math.max(20,Math.min(200,220-fixedD*0.4));
+    const wallX=(i/RAYS)*W;
+    const wallY=(H-wallH)/2;
+    ctx.fillStyle=`rgb(${Math.floor(shade*0.35)},${Math.floor(shade*0.38)},${Math.floor(shade*0.55)})`;
+    ctx.fillRect(wallX,wallY,W/RAYS+1.2,wallH);
+    const edgeShade=Math.max(10,shade-40);
+    ctx.fillStyle=`rgb(${Math.floor(edgeShade*0.2)},${Math.floor(edgeShade*0.22)},${Math.floor(edgeShade*0.35)})`;
+    ctx.fillRect(wallX,wallY,1,wallH);
+  }
+
+  const zbuf=new Float32Array(RAYS);
+  for(let i=0;i<RAYS;i++) {
+    const angle=player.angle-FOV/2+(i/RAYS)*FOV;
+    zbuf[i]=castRay(angle).d*Math.cos(angle-player.angle);
+  }
+
+  const spriteData=[];
+  for(const e of enemies) {
+    const dx=e.x-player.x,dy=e.y-player.y;
+    const d=Math.hypot(dx,dy);
+    let sa=Math.atan2(dy,dx)-player.angle;
+    while(sa>Math.PI) sa-=2*Math.PI;
+    while(sa<-Math.PI) sa+=2*Math.PI;
+    if(Math.abs(sa)<FOV*0.7) spriteData.push({e,d,sa});
+  }
+  spriteData.sort((a,b)=>b.d-a.d);
+
+  for(const {e,d,sa} of spriteData) {
+    const screenX=(0.5+sa/FOV)*W;
+    const sprH=Math.min(H*1.2,(CELL/d)*(W*0.85));
+    const sx=screenX-sprH/2,sy=(H-sprH)/2;
+    const hpRatio=e.health/e.maxHealth;
+    const colI=Math.floor(screenX/W*RAYS);
+    if(colI>=0&&colI<RAYS&&zbuf[colI]>d) {
+      const baseR=e.hitFlash>0?255:e.type==='heavy'?180:200;
+      const baseG=e.hitFlash>0?80:Math.floor(180*hpRatio);
+      const baseB=e.hitFlash>0?80:e.type==='heavy'?40:60;
+      ctx.fillStyle=`rgba(${baseR},${baseG},${baseB},0.92)`;
+      ctx.fillRect(sx,sy+sprH*0.1,sprH*0.8,sprH*0.8);
+      ctx.fillStyle='rgba(0,0,0,0.7)';
+      ctx.fillRect(sx+sprH*0.2,sy+sprH*0.18,sprH*0.15,sprH*0.12);
+      ctx.fillRect(sx+sprH*0.45,sy+sprH*0.18,sprH*0.15,sprH*0.12);
+      const hbW=sprH*0.8,hbH=5;
+      ctx.fillStyle='#333'; ctx.fillRect(sx,sy-8,hbW,hbH);
+      ctx.fillStyle=hpRatio>0.5?'#2ecc71':hpRatio>0.25?'#f39c12':'#e74c3c';
+      ctx.fillRect(sx,sy-8,hbW*hpRatio,hbH);
+    }
+  }
+
+  const gunW=120,gunH=140;
+  const gunBob=Math.sin(Date.now()*0.006)*(keys['w']||keys['s']||keys['a']||keys['d']?4:1);
+  ctx.fillStyle='#5a4030';
+  ctx.fillRect(W/2-gunW/2,H-gunH-10+gunBob,gunW,gunH);
+  ctx.fillStyle='#3a2820';
+  ctx.fillRect(W/2-10,H-gunH-10+gunBob,20,30);
+  ctx.fillStyle='#888';
+  ctx.fillRect(W/2-6,H-gunH-20+gunBob,12,14);
+  ctx.fillStyle='#4a3828';
+  ctx.fillRect(W/2-gunW/2,H-gunH+20+gunBob,gunW,14);
 }
 
-function assignCounty(county, lord){
-  county.owner = lord ? lord.id : null;
+function drawMinimap() {
+  miniCtx.clearRect(0,0,110,110);
+  const scale=110/(MAP_W*CELL);
+  for(let y=0;y<MAP_H;y++) for(let x=0;x<MAP_W;x++) {
+    miniCtx.fillStyle=map[y][x]?'#444':'#111';
+    miniCtx.fillRect(x*CELL*scale,y*CELL*scale,CELL*scale+0.5,CELL*scale+0.5);
+  }
+  for(const e of enemies) {
+    miniCtx.fillStyle=e.type==='heavy'?'#ff8c00':'#e74c3c';
+    miniCtx.fillRect(e.x*scale-2.5,e.y*scale-2.5,5,5);
+  }
+  miniCtx.fillStyle='#f0c040';
+  miniCtx.save();
+  miniCtx.translate(player.x*scale,player.y*scale);
+  miniCtx.rotate(player.angle);
+  miniCtx.fillRect(-3,-4,6,8);
+  miniCtx.fillStyle='#fff';
+  miniCtx.fillRect(-1,-6,2,4);
+  miniCtx.restore();
 }
 
-function getLord(id){ return G.lords.find(l=>l.id===id); }
-function getPlayerCounties(){ return G.counties.filter(c=>c.owner==='player'); }
-function getAICounties(lord){ return G.counties.filter(c=>c.owner===lord.id); }
-
-// ═══════════════════════════════════════
-// MAP DRAWING
-// ═══════════════════════════════════════
-let mapCanvas, mapCtx, minimapCanvas, minimapCtx;
-let mapW, mapH;
-let hoveredCounty = null;
-
-function initMapCanvas(){
-  mapCanvas = document.getElementById('map-canvas');
-  minimapCanvas = document.getElementById('minimap');
-  const panel = document.getElementById('map-panel');
-  mapW = panel.clientWidth;
-  mapH = panel.clientHeight;
-  mapCanvas.width = mapW; mapCanvas.height = mapH;
-  minimapCanvas.width = 160; minimapCanvas.height = 120;
-  mapCtx = mapCanvas.getContext('2d');
-  minimapCtx = minimapCanvas.getContext('2d');
-
-  mapCanvas.addEventListener('mousemove', onMapHover);
-  mapCanvas.addEventListener('click', onMapClick);
-  window.addEventListener('resize', ()=>{ mapW=panel.clientWidth; mapH=panel.clientHeight; mapCanvas.width=mapW; mapCanvas.height=mapH; drawMap(); });
+function updateHUD() {
+  document.getElementById('wave-num').textContent=wave;
+  document.getElementById('score').textContent=player.score.toLocaleString();
+  document.getElementById('kills').textContent=player.kills;
+  document.getElementById('ammo').textContent=`${player.ammo} / ${player.reserve}`;
+  const hp=player.health/player.maxHealth;
+  const fill=document.getElementById('health-fill');
+  fill.style.width=(hp*100)+'%';
+  fill.style.background=hp>0.5?'#2ecc71':hp>0.25?'#f39c12':'#e74c3c';
+  if(reloading) {
+    document.getElementById('reload-bar-wrap').style.display='block';
+    document.getElementById('reloading-text').style.display='block';
+    document.getElementById('reload-fill').style.width=(reloadProgress/reloadTotal*100)+'%';
+  } else {
+    document.getElementById('reload-bar-wrap').style.display='none';
+    document.getElementById('reloading-text').style.display='none';
+  }
+  document.getElementById('pointer-hint').style.display=mouseLocked?'none':'block';
 }
 
-function countyScreenPos(county){
-  return {x: county.x * mapW, y: county.y * mapH};
+function shoot() {
+  if(!gameActive||shootCooldown>0||reloading) return;
+  if(player.ammo<=0) { startReload(); return; }
+  player.ammo--;
+  shootCooldown=10;
+  const sf=document.getElementById('shoot-flash');
+  sf.style.background='rgba(255,255,200,0.2)';
+  setTimeout(()=>sf.style.background='rgba(255,255,200,0)',60);
+  for(let s=0;s<2;s++) {
+    const spread=(Math.random()-0.5)*0.06;
+    bullets.push({x:player.x,y:player.y,angle:player.angle+spread,speed:15,life:55,owner:'player'});
+  }
+  for(let p=0;p<4;p++) {
+    particles.push({x:player.x+Math.cos(player.angle)*25,y:player.y+Math.sin(player.angle)*25,
+      vx:Math.cos(player.angle+(Math.random()-0.5)*0.5)*4,
+      vy:Math.sin(player.angle+(Math.random()-0.5)*0.5)*4,
+      life:12,color:'#ffcc44',size:2+Math.random()*2});
+  }
+  updateHUD();
 }
 
-function countyRadius(county){ return Math.max(22, Math.min(35, county.pop/50)); }
+function startReload() {
+  if(reloading||player.reserve<=0||player.ammo===player.maxAmmo) return;
+  reloading=true; reloadProgress=0;
+}
 
-function drawMap(){
-  if(!mapCtx) return;
-  // Background - hand-drawn map feel
-  const bg = mapCtx.createLinearGradient(0,0,mapW,mapH);
-  bg.addColorStop(0,'#3a6a20');
-  bg.addColorStop(0.4,'#4a7a30');
-  bg.addColorStop(0.7,'#3a5a20');
-  bg.addColorStop(1,'#2a4a18');
-  mapCtx.fillStyle = bg;
-  mapCtx.fillRect(0,0,mapW,mapH);
+function takeDamage(amt) {
+  player.health=Math.max(0,player.health-amt);
+  const hf=document.getElementById('hit-flash');
+  hf.style.background='rgba(231,76,60,0.3)';
+  setTimeout(()=>hf.style.background='rgba(231,76,60,0)',180);
+  updateHUD();
+  if(player.health<=0) endGame();
+}
 
-  // Draw terrain patches
-  drawTerrainPatches();
+function endGame() {
+  gameActive=false;
+  document.getElementById('go-score').textContent=player.score.toLocaleString();
+  document.getElementById('go-kills').textContent=player.kills;
+  document.getElementById('go-wave').textContent=wave;
+  document.getElementById('gameover').style.display='flex';
+  document.exitPointerLock();
+}
 
-  // Draw connections between adjacent counties
-  drawConnections();
+function showWaveBanner(text) {
+  const banner=document.getElementById('wave-banner');
+  banner.textContent=text; banner.style.opacity=1;
+  setTimeout(()=>banner.style.opacity=0,2000);
+}
 
-  // Draw counties
-  G.counties.forEach(c => drawCounty(c));
+function update() {
+  if(!gameActive) return;
+  if(shootCooldown>0) shootCooldown--;
+  if(reloading) {
+    reloadProgress++;
+    if(reloadProgress>=reloadTotal) {
+      const needed=player.maxAmmo-player.ammo;
+      const got=Math.min(needed,player.reserve);
+      player.ammo+=got; player.reserve-=got;
+      reloading=false;
+      updateHUD();
+    }
+  }
 
-  // Draw minimap
+  const sprint=keys['shift']?1.6:1;
+  const speed=player.speed*sprint;
+  let dx=0,dy=0;
+  if(keys['w']||keys['arrowup']){dx+=Math.cos(player.angle)*speed;dy+=Math.sin(player.angle)*speed;}
+  if(keys['s']||keys['arrowdown']){dx-=Math.cos(player.angle)*speed;dy-=Math.sin(player.angle)*speed;}
+  if(keys['a']||keys['arrowleft']){dx+=Math.cos(player.angle-Math.PI/2)*speed;dy+=Math.sin(player.angle-Math.PI/2)*speed;}
+  if(keys['d']||keys['arrowright']){dx+=Math.cos(player.angle+Math.PI/2)*speed;dy+=Math.sin(player.angle+Math.PI/2)*speed;}
+  moveEntity(player,dx,dy);
+
+  for(const e of enemies) {
+    if(e.hitFlash>0) e.hitFlash--;
+    const edx=player.x-e.x,edy=player.y-e.y;
+    const ed=Math.hypot(edx,edy);
+    e.angle=Math.atan2(edy,edx);
+    const es=e.type==='heavy'?e.speed*0.7:e.speed;
+    if(ed>35) moveEntity(e,(edx/ed)*es,(edy/ed)*es);
+    else takeDamage(e.type==='heavy'?0.25:0.12);
+    e.shootTimer--;
+    if(e.shootTimer<=0&&ed<350) {
+      e.shootTimer=e.type==='heavy'?50:70+Math.random()*50;
+      const shots=e.type==='heavy'?3:1;
+      for(let s=0;s<shots;s++) {
+        const ba=e.angle+(Math.random()-0.5)*0.25;
+        bullets.push({x:e.x,y:e.y,angle:ba,speed:e.type==='heavy'?7:9,life:80,owner:'enemy',dmg:e.type==='heavy'?12:8});
+      }
+    }
+  }
+
+  for(let i=bullets.length-1;i>=0;i--) {
+    const b=bullets[i];
+    b.x+=Math.cos(b.angle)*b.speed;
+    b.y+=Math.sin(b.angle)*b.speed;
+    b.life--;
+    if(b.life<=0||isSolid(b.x,b.y)){bullets.splice(i,1);continue;}
+    if(b.owner==='player') {
+      let hit=false;
+      for(let j=enemies.length-1;j>=0;j--) {
+        if(dist(b.x,b.y,enemies[j].x,enemies[j].y)<22) {
+          enemies[j].health-=22+Math.floor(Math.random()*10);
+          enemies[j].hitFlash=8;
+          hit=true;
+          if(enemies[j].health<=0) {
+            player.score+=enemies[j].type==='heavy'?250*wave:100*wave;
+            player.kills++;
+            for(let p=0;p<8;p++) {
+              const pa=Math.random()*Math.PI*2;
+              particles.push({x:enemies[j].x,y:enemies[j].y,vx:Math.cos(pa)*3,vy:Math.sin(pa)*3,life:20,color:enemies[j].type==='heavy'?'#ff8c00':'#e74c3c',size:3});
+            }
+            enemies.splice(j,1);
+            updateHUD();
+          }
+          break;
+        }
+      }
+      if(hit) {bullets.splice(i,1);continue;}
+    } else {
+      if(dist(b.x,b.y,player.x,player.y)<18) {
+        takeDamage(b.dmg||8);
+        bullets.splice(i,1);
+      }
+    }
+  }
+
+  for(let i=particles.length-1;i>=0;i--) {
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vx*=0.92; p.vy*=0.92; p.life--;
+    if(p.life<=0) particles.splice(i,1);
+  }
+
+  if(enemies.length===0&&gameActive) {
+    gameActive=false;
+    showWaveBanner(`WAVE ${wave} CLEAR!`);
+    setTimeout(()=>{
+      wave++;
+      const healAmt=Math.min(30,player.maxHealth-player.health);
+      player.health+=healAmt;
+      player.ammo=player.maxAmmo;
+      player.reserve=Math.min(player.reserve+60,180);
+      spawnWave(wave);
+      showWaveBanner(`WAVE ${wave}`);
+      gameActive=true;
+      updateHUD();
+    },2200);
+  }
+}
+
+function render() {
+  drawScene();
   drawMinimap();
 }
 
-function drawTerrainPatches(){
-  // Simple noise-like terrain texture
-  mapCtx.globalAlpha = 0.15;
-  for(let i=0;i<30;i++){
-    const x=Math.sin(i*137)*mapW, y=Math.cos(i*97)*mapH;
-    const r=30+Math.abs(Math.sin(i*23))*80;
-    const g2=mapCtx.createRadialGradient(x,y,0,x,y,r);
-    g2.addColorStop(0,'#8aaa50'); g2.addColorStop(1,'transparent');
-    mapCtx.fillStyle=g2;
-    mapCtx.beginPath(); mapCtx.arc(x,y,r,0,Math.PI*2); mapCtx.fill();
-  }
-  mapCtx.globalAlpha = 1;
+function loop() {
+  update();
+  if(gameActive||document.getElementById('gameover').style.display==='none') render();
+  requestAnimationFrame(loop);
 }
 
-function drawConnections(){
-  // Draw roads between nearby counties
-  mapCtx.strokeStyle = 'rgba(180,140,80,0.3)';
-  mapCtx.lineWidth = 2;
-  mapCtx.setLineDash([6,4]);
-  G.counties.forEach((a,i) => {
-    G.counties.forEach((b,j) => {
-      if(j<=i) return;
-      const dx=(b.x-a.x)*mapW, dy=(b.y-a.y)*mapH;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<mapW*0.22){
-        const pa=countyScreenPos(a), pb=countyScreenPos(b);
-        mapCtx.beginPath(); mapCtx.moveTo(pa.x,pa.y); mapCtx.lineTo(pb.x,pb.y); mapCtx.stroke();
-      }
-    });
-  });
-  mapCtx.setLineDash([]);
-}
-
-function drawCounty(county){
-  const {x,y} = countyScreenPos(county);
-  const r = countyRadius(county);
-  const lord = county.owner ? getLord(county.owner) : null;
-  const isSelected = G.selectedCounty && G.selectedCounty.id===county.id;
-  const isHovered = hoveredCounty && hoveredCounty.id===county.id;
-  const isPlayer = county.owner==='player';
-
-  // Shadow
-  mapCtx.shadowColor='rgba(0,0,0,0.5)';
-  mapCtx.shadowBlur=8;
-
-  // Territory glow
-  if(lord){
-    mapCtx.globalAlpha=0.25;
-    mapCtx.fillStyle=lord.color;
-    mapCtx.beginPath(); mapCtx.arc(x,y,r+12,0,Math.PI*2); mapCtx.fill();
-    mapCtx.globalAlpha=1;
-  }
-
-  // Main circle - terrain color
-  const terrainCol = TERRAIN_COLOR[county.terrain]||'#5a8a30';
-  mapCtx.fillStyle = isHovered ? lighten(terrainCol,30) : terrainCol;
-  mapCtx.beginPath(); mapCtx.arc(x,y,r,0,Math.PI*2); mapCtx.fill();
-
-  // Border
-  mapCtx.shadowBlur=0;
-  mapCtx.strokeStyle = isSelected ? '#fff' : (lord ? lord.color : '#8b6914');
-  mapCtx.lineWidth = isSelected ? 3 : 2;
-  mapCtx.stroke();
-
-  // Selection ring
-  if(isSelected){
-    mapCtx.strokeStyle='rgba(255,255,255,0.6)';
-    mapCtx.lineWidth=1.5;
-    mapCtx.beginPath(); mapCtx.arc(x,y,r+5,0,Math.PI*2); mapCtx.stroke();
-  }
-
-  // Terrain icon
-  mapCtx.font = `${Math.round(r*0.7)}px serif`;
-  mapCtx.textAlign='center'; mapCtx.textBaseline='middle';
-  mapCtx.fillText(TERRAIN_ICON[county.terrain]||'🌾', x, y-4);
-
-  // Lord flag on owned counties
-  if(lord){
-    mapCtx.fillStyle = lord.color;
-    mapCtx.fillRect(x+r-8, y-r-18, 14, 10);
-    mapCtx.fillStyle='#2a1a08'; mapCtx.font='10px serif';
-    mapCtx.fillText(lord.emoji, x+r-1, y-r-13);
-    // Flag pole
-    mapCtx.strokeStyle='#8b6914'; mapCtx.lineWidth=1.5;
-    mapCtx.beginPath(); mapCtx.moveTo(x+r-1,y-r+2); mapCtx.lineTo(x+r-1,y-r-18); mapCtx.stroke();
-  }
-
-  // County name
-  mapCtx.shadowColor='rgba(0,0,0,0.8)'; mapCtx.shadowBlur=4;
-  mapCtx.fillStyle='#f4e4b8'; mapCtx.font=`bold ${Math.round(r*0.38)}px 'Crimson Text',serif`;
-  mapCtx.fillText(county.name, x, y+r+10);
-  mapCtx.shadowBlur=0;
-
-  // Army indicator
-  const totalTroops = Object.values(county.troops).reduce((a,b)=>a+b,0);
-  if(totalTroops>0 && isPlayer){
-    mapCtx.fillStyle='rgba(0,0,0,0.6)';
-    mapCtx.beginPath(); mapCtx.arc(x-r+8,y+r-8,9,0,Math.PI*2); mapCtx.fill();
-    mapCtx.fillStyle='#f0c030'; mapCtx.font='bold 9px Cinzel,serif';
-    mapCtx.fillText('⚔️', x-r+8, y+r-8);
-  }
-}
-
-function drawMinimap(){
-  const mc=minimapCtx, mw=160, mh=120;
-  mc.fillStyle='#2a4a18'; mc.fillRect(0,0,mw,mh);
-  G.counties.forEach(c=>{
-    const lord=c.owner?getLord(c.owner):null;
-    mc.fillStyle=lord?lord.color:'#5a8a30';
-    mc.beginPath(); mc.arc(c.x*mw,c.y*mh,5,0,Math.PI*2); mc.fill();
-  });
-  // Player indicator
-  mc.strokeStyle='rgba(255,255,255,0.5)'; mc.lineWidth=1;
-  mc.strokeRect(0,0,mw,mh);
-}
-
-function lighten(hex,amount){
-  const r=Math.min(255,parseInt(hex.slice(1,3),16)+amount);
-  const g=Math.min(255,parseInt(hex.slice(3,5),16)+amount);
-  const b=Math.min(255,parseInt(hex.slice(5,7),16)+amount);
-  return `rgb(${r},${g},${b})`;
-}
-
-// ═══════════════════════════════════════
-// MAP INTERACTION
-// ═══════════════════════════════════════
-function onMapHover(e){
-  const rect=mapCanvas.getBoundingClientRect();
-  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
-  const prev=hoveredCounty;
-  hoveredCounty=null;
-  G.counties.forEach(c=>{
-    const {x,y}=countyScreenPos(c);
-    const r=countyRadius(c);
-    if(Math.sqrt((mx-x)**2+(my-y)**2)<r+5) hoveredCounty=c;
-  });
-  if(hoveredCounty!==prev) drawMap();
-
-  // Tooltip
-  const tt=document.getElementById('county-tooltip');
-  if(hoveredCounty){
-    const lord=hoveredCounty.owner?getLord(hoveredCounty.owner):null;
-    const troops=Object.values(hoveredCounty.troops).reduce((a,b)=>a+b,0);
-    tt.innerHTML=`
-      <div class="tooltip-name">${TERRAIN_ICON[hoveredCounty.terrain]} ${hoveredCounty.name}</div>
-      <div>Owner: ${lord?`<span style="color:${lord.color}">${lord.emoji} ${lord.name}</span>`:'Neutral'}</div>
-      <div>Population: ${hoveredCounty.pop.toLocaleString()}</div>
-      <div>Troops: ${troops}</div>
-      <div>Terrain: ${hoveredCounty.terrain}</div>
-    `;
-    tt.style.display='block';
-    tt.style.left=Math.min(mx+12, mapW-200)+'px';
-    tt.style.top=Math.min(my+12, mapH-120)+'px';
-  } else {
-    tt.style.display='none';
-  }
-}
-
-function onMapClick(e){
-  const rect=mapCanvas.getBoundingClientRect();
-  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
-  let clicked=null;
-  G.counties.forEach(c=>{
-    const {x,y}=countyScreenPos(c);
-    const r=countyRadius(c);
-    if(Math.sqrt((mx-x)**2+(my-y)**2)<r+5) clicked=c;
-  });
-  if(clicked){
-    G.selectedCounty=clicked;
-    openCountyPanel(clicked);
-    drawMap();
-  } else {
-    G.selectedCounty=null;
-    closeCountyPanel();
-    drawMap();
-  }
-}
-
-// ═══════════════════════════════════════
-// COUNTY PANEL
-// ═══════════════════════════════════════
-function openCountyPanel(county){
-  const panel=document.getElementById('county-panel');
-  const lord=county.owner?getLord(county.owner):null;
-  const isPlayer=county.owner==='player';
-  const isEnemy=county.owner&&county.owner!=='player';
-
-  document.getElementById('cp-name').textContent=`${TERRAIN_ICON[county.terrain]} ${county.name}`;
-
-  // Owner
-  document.getElementById('cp-owner').innerHTML=lord
-    ?`<span style="color:${lord.color}">${lord.emoji} ${lord.name}</span> — ${county.terrain}`
-    :`🌍 Neutral County — ${county.terrain}`;
-
-  // Stats
-  document.getElementById('cp-stats').innerHTML=`
-    <div class="cp-stat"><div class="cp-stat-val">${county.pop.toLocaleString()}</div><div class="cp-stat-lbl">👥 Population</div></div>
-    <div class="cp-stat"><div class="cp-stat-val">${county.defense}</div><div class="cp-stat-lbl">🛡️ Defense</div></div>
-    <div class="cp-stat"><div class="cp-stat-val">${county.morale}%</div><div class="cp-stat-lbl">💪 Morale</div></div>
-    <div class="cp-stat"><div class="cp-stat-val">${Object.values(county.troops).reduce((a,b)=>a+b,0)}</div><div class="cp-stat-lbl">⚔️ Troops</div></div>
-  `;
-
-  // Actions
-  let actions='';
-  if(isPlayer){
-    actions=`
-      <button class="cp-btn" onclick="openRecruit()">⚔️ Recruit</button>
-      <button class="cp-btn" onclick="openFarm()">🌾 Farming</button>
-      <button class="cp-btn" onclick="openBuild()">🏗️ Build</button>
-    `;
-  } else if(isEnemy){
-    const rel=G.player.relations[county.owner];
-    actions=`<button class="cp-btn" onclick="attackCounty(${county.id})">⚔️ Attack!</button>`;
-  } else {
-    actions=`<button class="cp-btn" onclick="claimCounty(${county.id})">🏴 Claim</button>`;
-  }
-  document.getElementById('cp-actions').innerHTML=actions;
-  panel.style.display='block';
-}
-
-function closeCountyPanel(){
-  document.getElementById('county-panel').style.display='none';
-  G.selectedCounty=null;
-}
-
-// ═══════════════════════════════════════
-// RECRUIT
-// ═══════════════════════════════════════
-let recruitCounts={};
-
-function openRecruit(){
-  if(!G.selectedCounty||G.selectedCounty.owner!=='player') return;
-  G.recruitTarget=G.selectedCounty;
-  recruitCounts={peasant:0,archer:0,pikeman:0,knight:0,catapult:0};
-  const hasBarracks=G.selectedCounty.buildings.includes('barracks');
-
-  document.getElementById('troop-list').innerHTML=TROOP_TYPES.map(t=>{
-    const locked=!hasBarracks&&(t.id==='knight'||t.id==='catapult');
-    return `<div class="troop-row ${locked?'opacity-50':''}">
-      <div class="troop-icon">${t.icon}</div>
-      <div class="troop-info">
-        <div class="troop-name">${t.name} ${locked?'🔒':''}</div>
-        <div class="troop-desc">${t.desc}</div>
-        <div class="troop-cost">🪙${t.goldCost} 🍞${t.foodCost} each</div>
-      </div>
-      <div class="troop-ctrl">
-        <button class="troop-btn" onclick="changeRecruit('${t.id}',-1)" ${locked?'disabled':''}>−</button>
-        <input class="troop-count" id="rc-${t.id}" value="0" readonly/>
-        <button class="troop-btn" onclick="changeRecruit('${t.id}',1)" ${locked?'disabled':''}>+</button>
-      </div>
-    </div>`;
-  }).join('');
-  updateRecruitCost();
-  openModal('recruit-modal');
-}
-
-function changeRecruit(id,delta){
-  recruitCounts[id]=Math.max(0,(recruitCounts[id]||0)+delta);
-  document.getElementById('rc-'+id).value=recruitCounts[id];
-  updateRecruitCost();
-}
-
-function updateRecruitCost(){
-  let gold=0,food=0;
-  TROOP_TYPES.forEach(t=>{gold+=t.goldCost*(recruitCounts[t.id]||0);food+=t.foodCost*(recruitCounts[t.id]||0);});
-  document.getElementById('recruit-gold-cost').textContent=gold;
-  document.getElementById('recruit-food-cost').textContent=food;
-}
-
-function confirmRecruit(){
-  let gold=0,food=0;
-  TROOP_TYPES.forEach(t=>{gold+=t.goldCost*(recruitCounts[t.id]||0);food+=t.foodCost*(recruitCounts[t.id]||0);});
-  if(G.player.gold<gold){toast('❌ Not enough gold!');return;}
-  if(G.player.food<food){toast('❌ Not enough food!');return;}
-  const total=Object.values(recruitCounts).reduce((a,b)=>a+b,0);
-  if(total===0){toast('Select at least one troop!');return;}
-  G.player.gold-=gold; G.player.food-=food;
-  TROOP_TYPES.forEach(t=>{
-    if(G.recruitTarget) G.recruitTarget.troops[t.id]+=(recruitCounts[t.id]||0);
-  });
-  addLog(`⚔️ Recruited ${total} troops in ${G.recruitTarget.name}`,'important');
-  closeModal('recruit-modal');
-  updateSidePanel(); drawMap();
-  toast(`✅ ${total} troops recruited!`);
-}
-
-// ═══════════════════════════════════════
-// FARM
-// ═══════════════════════════════════════
-function openFarm(){
-  if(!G.selectedCounty||G.selectedCounty.owner!=='player') return;
-  const c=G.selectedCounty;
-  document.getElementById('farm-grid').innerHTML=`
-    <div class="farm-card">
-      <div class="farm-icon">🌾</div>
-      <div class="farm-name">Farm Level</div>
-      <div class="farm-val">Current: ${c.farmLevel}</div>
-      <div style="margin-top:6px;display:flex;gap:6px;justify-content:center">
-        <button class="troop-btn" onclick="changeFarm(-1)">−</button>
-        <span class="farm-input" id="farm-level-val">${c.farmLevel}</span>
-        <button class="troop-btn" onclick="changeFarm(1)">+</button>
-      </div>
-      <div class="farm-val" style="margin-top:4px">Cost: 🪙50 🌲20 per level</div>
-    </div>
-    <div class="farm-card">
-      <div class="farm-icon">⛏️</div>
-      <div class="farm-name">Iron Mines</div>
-      <div class="farm-val">Current: ${c.ironMines}</div>
-      <div style="margin-top:6px;display:flex;gap:6px;justify-content:center">
-        <button class="troop-btn" onclick="changeMine(-1)">−</button>
-        <span class="farm-input" id="mine-val">${c.ironMines}</span>
-        <button class="troop-btn" onclick="changeMine(1)">+</button>
-      </div>
-      <div class="farm-val" style="margin-top:4px">Cost: 🪙80 per mine</div>
-    </div>
-    <div class="farm-card" style="grid-column:span 2">
-      <div class="farm-icon">📊</div>
-      <div class="farm-name">Production per Turn</div>
-      <div class="farm-val">🍞 Food: +${calcFoodProd(c)}</div>
-      <div class="farm-val">⛏️ Iron: +${calcIronProd(c)}</div>
-      <div class="farm-val">🪙 Gold Tax: +${calcGoldTax(c)}</div>
-    </div>
-  `;
-  openModal('farm-modal');
-}
-
-let tempFarm=0, tempMine=0;
-function changeFarm(d){ tempFarm=Math.max(0,tempFarm+d); document.getElementById('farm-level-val').textContent=G.selectedCounty.farmLevel+tempFarm; }
-function changeMine(d){ tempMine=Math.max(0,tempMine+d); document.getElementById('mine-val').textContent=G.selectedCounty.ironMines+tempMine; }
-
-function calcFoodProd(c){ return Math.round(c.pop/30 * c.farmLevel * (c.buildings.includes('mill')?1.25:1) * (c.buildings.includes('farm')?1.3:1)); }
-function calcIronProd(c){ return c.ironMines * 15 + (c.terrain==='mountain'?10:0); }
-function calcGoldTax(c){ return Math.round(c.pop/20 * (c.buildings.includes('market')?1.2:1)); }
-
-function confirmFarm(){
-  const c=G.selectedCounty;
-  const farmCost=tempFarm*50, farmWood=tempFarm*20, mineCost=tempMine*80;
-  const totalGold=farmCost+mineCost, totalWood=farmWood;
-  if(G.player.gold<totalGold){toast('❌ Not enough gold!');return;}
-  if(G.player.wood<totalWood){toast('❌ Not enough wood!');return;}
-  G.player.gold-=totalGold; G.player.wood-=totalWood;
-  c.farmLevel+=tempFarm; c.ironMines+=tempMine;
-  tempFarm=0; tempMine=0;
-  addLog(`🌾 Improved farming in ${c.name}`);
-  closeModal('farm-modal');
-  updateSidePanel();
-  toast('✅ Farming improved!');
-}
-
-// ═══════════════════════════════════════
-// BUILD
-// ═══════════════════════════════════════
-function openBuild(){
-  if(!G.selectedCounty||G.selectedCounty.owner!=='player') return;
-  const c=G.selectedCounty;
-  document.getElementById('building-grid').innerHTML=BUILDINGS.map(b=>{
-    const built=c.buildings.includes(b.id);
-    const locked=b.requires&&!c.buildings.includes(b.requires);
-    const clickHandler = (!built&&!locked) ? `onclick="buildStructure('${b.id}')"` : '';
-    return `<div class="building-card ${built?'built':''} ${locked?'locked':''}" ${clickHandler} >
-      <div class="building-icon">${b.icon}</div>
-      <div class="building-name">${b.name} ${built?'✅':''}</div>
-      <div class="building-cost">🪙${b.goldCost} 🌲${b.woodCost}</div>
-      <div class="building-effect">${b.effect}</div>
-      ${locked?`<div style="font-size:0.7rem;color:#f0c030;margin-top:3px">Requires ${b.requires}</div>`:''}
-    </div>`;
-  }).join('');
-  openModal('build-modal');
-}
-
-function buildStructure(id){
-  const c=G.selectedCounty;
-  const b=BUILDINGS.find(x=>x.id===id);
-  if(!b||c.buildings.includes(id)) return;
-  if(G.player.gold<b.goldCost){toast('❌ Not enough gold!');return;}
-  if(G.player.wood<b.woodCost){toast('❌ Not enough wood!');return;}
-  G.player.gold-=b.goldCost; G.player.wood-=b.woodCost;
-  c.buildings.push(id);
-  if(id==='tower') c.defense+=2;
-  if(id==='castle') c.defense+=5;
-  addLog(`🏗️ Built ${b.name} in ${c.name}`,'important');
-  closeModal('build-modal');
-  updateSidePanel(); drawMap();
-  toast(`✅ ${b.name} constructed!`);
-}
-
-// ═══════════════════════════════════════
-// ATTACK / CLAIM
-// ═══════════════════════════════════════
-function attackCounty(countyId){
-  const target=G.counties[countyId];
-  if(!target) return;
-  const playerMilitary=getPlayerCounties().reduce((sum,c)=>{
-    return sum+Object.entries(c.troops).reduce((s,[t,n])=>{
-      const troop=TROOP_TYPES.find(x=>x.id===t);
-      return s+(troop?troop.attack*n:0);
-    },0);
-  },0);
-  const defPower=Object.entries(target.troops).reduce((s,[t,n])=>{
-    const troop=TROOP_TYPES.find(x=>x.id===t);
-    return s+(troop?troop.defense*n:0);
-  },0)+target.defense*5;
-  const playerTotal=getPlayerCounties().reduce((s,c)=>s+Object.values(c.troops).reduce((a,b)=>a+b,0),0);
-  if(playerTotal===0){toast('⚔️ You need troops to attack!');return;}
-  const win=playerMilitary>(defPower*0.8);
-  if(win){
-    const oldOwner=getLord(target.owner);
-    assignCounty(target,'player');
-    target.troops={peasant:0,archer:0,pikeman:0,knight:0,catapult:0};
-    target.morale=50;
-    addLog(`⚔️ You conquered ${target.name}!`,'important');
-    toast(`🏆 Victory! ${target.name} is yours!`);
-    // Check win condition
-    checkWin();
-  } else {
-    // Lose some troops
-    getPlayerCounties().forEach(c=>{
-      Object.keys(c.troops).forEach(t=>{ c.troops[t]=Math.max(0,Math.floor(c.troops[t]*0.7)); });
-    });
-    addLog(`💀 Attack on ${target.name} failed! Lost troops.`,'war');
-    toast('💀 Attack failed! Lost some troops.');
-  }
-  closeCountyPanel();
-  updateSidePanel(); drawMap();
-}
-
-function claimCounty(countyId){
-  const target=G.counties[countyId];
-  if(!target||target.owner) return;
-  const adj=G.counties.filter(c=>{
-    if(c.owner!=='player') return false;
-    const dx=(c.x-target.x)*mapW, dy=(c.y-target.y)*mapH;
-    return Math.sqrt(dx*dx+dy*dy)<mapW*0.25;
-  });
-  if(adj.length===0){toast('❌ Must be adjacent to your territory!');return;}
-  if(G.player.gold<50){toast('❌ Need 50 gold to claim county!');return;}
-  G.player.gold-=50;
-  assignCounty(target,G.player);
-  addLog(`🏴 Claimed ${target.name}!`,'important');
-  toast(`✅ ${target.name} claimed!`);
-  closeCountyPanel(); updateSidePanel(); drawMap();
-}
-
-// ═══════════════════════════════════════
-// DIPLOMACY
-// ═══════════════════════════════════════
-function openDiplo(){
-  const body=document.getElementById('diplo-body');
-  const aiLords=G.lords.filter(l=>l.isAI);
-  if(aiLords.length===0){ body.innerHTML='<p style="color:#888;text-align:center">No other lords remain.</p>'; openModal('diplo-modal'); return; }
-  body.innerHTML=aiLords.map(ai=>{
-    const rel=G.player.relations[ai.id]||'war';
-    const counties=getAICounties(ai).length;
-    return `<div class="diplo-lord-row">
-      <div class="diplo-avatar" style="background:${ai.color}22;border-color:${ai.color}">${ai.emoji}</div>
-      <div>
-        <div class="diplo-name" style="color:${ai.color}">${ai.name}</div>
-        <div style="font-size:0.75rem;color:#888">${counties} counties · <span class="diplo-status ${rel}">${rel.toUpperCase()}</span></div>
-        <div class="diplo-actions">
-          <button class="diplo-btn" onclick="setRelation('${ai.id}','peace')" ${rel==='peace'?'disabled':''}>🕊️ Peace</button>
-          <button class="diplo-btn" onclick="setRelation('${ai.id}','war')" ${rel==='war'?'disabled':''}>⚔️ War</button>
-          <button class="diplo-btn" onclick="setRelation('${ai.id}','tribute')" ${rel==='tribute'?'disabled':''}>💰 Tribute</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  openModal('diplo-modal');
-}
-
-function setRelation(lordId,rel){
-  const old=G.player.relations[lordId];
-  G.player.relations[lordId]=rel;
-  const ai=getLord(lordId);
-  const relMsg={peace:'🕊️ Peace declared',war:'⚔️ War declared',tribute:'💰 Tribute agreed'};
-  addLog(`${relMsg[rel]} with ${ai.name}`, rel==='war'?'war':'peace');
-  toast(`${relMsg[rel]} with ${ai.name}!`);
-  openDiplo(); // refresh
-}
-
-// ═══════════════════════════════════════
-// END TURN & AI
-// ═══════════════════════════════════════
-function endTurn(){
-  G.turn++; G.year+=1;
-  // Player income
-  const pCounties=getPlayerCounties();
-  let totalGold=0,totalFood=0,totalIron=0,totalWood=0;
-  pCounties.forEach(c=>{
-    totalGold+=calcGoldTax(c);
-    totalFood+=calcFoodProd(c);
-    totalIron+=calcIronProd(c);
-    totalWood+=Math.round(c.pop/60*(c.terrain==='forest'?2:1));
-    // Population growth
-    if(G.player.food>50) c.pop=Math.min(c.pop+Math.round(c.pop*0.01),5000);
-    // Morale recovery
-    c.morale=Math.min(100,c.morale+5);
-  });
-  // Troop upkeep
-  const upkeep=pCounties.reduce((sum,c)=>sum+Object.entries(c.troops).reduce((s,[t,n])=>{
-    const troop=TROOP_TYPES.find(x=>x.id===t);
-    return s+(troop?Math.ceil(troop.goldCost*0.1)*n:0);
-  },0),0);
-  G.player.gold+=totalGold-upkeep;
-  G.player.food+=totalFood-pCounties.reduce((s,c)=>s+Object.values(c.troops).reduce((a,b)=>a+b,0),0);
-  G.player.iron+=totalIron;
-  G.player.wood+=totalWood;
-  // Clamp resources
-  G.player.gold=Math.max(0,G.player.gold);
-  G.player.food=Math.max(0,G.player.food);
-
-  addLog(`📅 Turn ${G.turn} — +${totalGold}🪙 +${totalFood}🍞 -${upkeep}🪙 upkeep`);
-
-  // AI turns
-  G.lords.filter(l=>l.isAI).forEach(ai=>doAITurn(ai));
-
-  document.getElementById('turn-num').textContent=G.turn;
-  document.getElementById('year-num').textContent=G.year;
-  updateSidePanel(); drawMap();
-  checkWin(); checkLose();
-}
-
-function doAITurn(ai){
-  const aiCounties=getAICounties(ai);
-  if(aiCounties.length===0) return;
-
-  // Income
-  let gold=0,food=0;
-  aiCounties.forEach(c=>{gold+=calcGoldTax(c);food+=calcFoodProd(c);});
-  const upkeep=aiCounties.reduce((sum,c)=>sum+Object.entries(c.troops).reduce((s,[t,n])=>{
-    const troop=TROOP_TYPES.find(x=>x.id===t);
-    return s+(troop?Math.ceil(troop.goldCost*0.1)*n:0);
-  },0),0);
-  ai.gold=Math.max(0,ai.gold+gold-upkeep);
-  ai.food=Math.max(0,ai.food+food);
-
-  // AI recruit
-  const base=aiCounties[0];
-  const diff={easy:0.5,normal:1,hard:1.5}[G.difficulty];
-  if(ai.gold>100){
-    const num=Math.floor(ai.gold/20*diff);
-    base.troops.peasant+=Math.min(num,8);
-    base.troops.archer+=Math.min(2,Math.floor(num/3));
-    ai.gold-=Math.min(num,8)*5+Math.min(2,Math.floor(num/3))*15;
-  }
-
-  // AI attack player or neutral
-  if(Math.random()<0.3*diff){
-    const rel=ai.relations['player']||'war';
-    if(rel==='war'){
-      const neutral=G.counties.find(c=>!c.owner);
-      const playerC=getPlayerCounties()[0];
-      const target=neutral||playerC;
-      if(target){
-        const aiPower=aiCounties.reduce((sum,c)=>sum+Object.entries(c.troops).reduce((s,[t,n])=>{
-          const troop=TROOP_TYPES.find(x=>x.id===t);
-          return s+(troop?troop.attack*n:0);
-        },0),0);
-        const defPower=Object.entries(target.troops).reduce((s,[t,n])=>{
-          const troop=TROOP_TYPES.find(x=>x.id===t);
-          return s+(troop?troop.defense*n:0);
-        },0)+target.defense*3;
-        if(aiPower>defPower*0.7){
-          const old=target.owner;
-          assignCounty(target,ai);
-          target.troops={peasant:0,archer:0,pikeman:0,knight:0,catapult:0};
-          if(old==='player'){
-            addLog(`⚠️ ${ai.name} captured ${target.name}!`,'war');
-            toast(`⚠️ ${ai.name} captured ${target.name}!`);
-          } else {
-            addLog(`${ai.emoji} ${ai.name} captured ${target.name}`);
-          }
-        }
-      }
-    }
-  }
-  // AI relations with player
-  if(!ai.relations['player']) ai.relations['player']='war';
-}
-
-// ═══════════════════════════════════════
-// WIN / LOSE
-// ═══════════════════════════════════════
-function checkWin(){
-  const allOwned=G.counties.every(c=>c.owner==='player'||!c.owner);
-  const aiHaveCounties=G.lords.filter(l=>l.isAI).some(ai=>getAICounties(ai).length>0);
-  if(!aiHaveCounties){
-    setTimeout(()=>showEndScreen(true),500);
-  }
-}
-
-function checkLose(){
-  if(getPlayerCounties().length===0){
-    setTimeout(()=>showEndScreen(false),500);
-  }
-}
-
-function showEndScreen(win){
-  if(win){
-    toast(`🏆 VICTORY! You have conquered the realm after ${G.turn} turns!`, 8000);
-    addLog(`👑 VICTORY! The realm is yours!`,'important');
-  } else {
-    toast(`💀 DEFEAT! Your kingdom has fallen after ${G.turn} turns.`, 8000);
-    addLog(`💀 Your realm has fallen...`,'war');
-  }
-}
-
-// ═══════════════════════════════════════
-// SIDE PANEL UPDATE
-// ═══════════════════════════════════════
-function updateSidePanel(){
-  // Player info
-  document.getElementById('player-name-display').textContent=G.player.name;
-  const pCounties=getPlayerCounties();
-  const titles=['Peasant','Freeman','Knight','Baron','Count','Duke','King','Emperor'];
-  document.getElementById('player-title-display').textContent=titles[Math.min(pCounties.length,titles.length-1)]+' of the Realm';
-  document.getElementById('player-avatar').style.background=G.player.color+'44';
-  document.getElementById('player-avatar').style.borderColor=G.player.color;
-
-  // Resources
-  const foodProd=pCounties.reduce((s,c)=>s+calcFoodProd(c),0);
-  const goldProd=pCounties.reduce((s,c)=>s+calcGoldTax(c),0);
-  const troopUpkeep=pCounties.reduce((sum,c)=>sum+Object.entries(c.troops).reduce((s,[t,n])=>{
-    const troop=TROOP_TYPES.find(x=>x.id===t);
-    return s+(troop?Math.ceil(troop.goldCost*0.1)*n:0);
-  },0),0);
-  const foodUse=pCounties.reduce((s,c)=>s+Object.values(c.troops).reduce((a,b)=>a+b,0),0);
-  const goldNet=goldProd-troopUpkeep, foodNet=foodProd-foodUse;
-  document.getElementById('resources-grid').innerHTML=`
-    <div class="res-card"><div class="res-icon">🪙</div><div class="res-val">${G.player.gold}</div><div class="res-label">Gold</div><div class="res-delta ${goldNet>=0?'pos':'neg'}">${goldNet>=0?'+':''}${goldNet}/turn</div></div>
-    <div class="res-card"><div class="res-icon">🍞</div><div class="res-val">${G.player.food}</div><div class="res-label">Food</div><div class="res-delta ${foodNet>=0?'pos':'neg'}">${foodNet>=0?'+':''}${foodNet}/turn</div></div>
-    <div class="res-card"><div class="res-icon">⛏️</div><div class="res-val">${G.player.iron}</div><div class="res-label">Iron</div><div class="res-delta zero">+${pCounties.reduce((s,c)=>s+calcIronProd(c),0)}/turn</div></div>
-    <div class="res-card"><div class="res-icon">🌲</div><div class="res-val">${G.player.wood}</div><div class="res-label">Wood</div><div class="res-delta zero">+${pCounties.reduce((s,c)=>s+Math.round(c.pop/60),0)}/turn</div></div>
-  `;
-
-  // Army
-  const totalTroops={peasant:0,archer:0,pikeman:0,knight:0,catapult:0};
-  pCounties.forEach(c=>Object.keys(totalTroops).forEach(t=>totalTroops[t]+=c.troops[t]||0));
-  const armyHtml=TROOP_TYPES.filter(t=>totalTroops[t.id]>0).map(t=>
-    `<div class="army-row"><div class="army-icon">${t.icon}</div><div class="army-name">${t.name}</div><div class="army-count">${totalTroops[t.id]}</div></div>`
-  ).join('');
-  document.getElementById('army-list').innerHTML=armyHtml||'<div style="color:#666;font-size:0.8rem;padding:4px">No troops</div>';
-
-  // County list
-  document.getElementById('county-count').textContent=pCounties.length;
-  document.getElementById('county-list').innerHTML=pCounties.map(c=>
-    `<div style="padding:5px 0;border-bottom:1px solid #2a1808;cursor:pointer;font-size:0.82rem;color:var(--parchment)" onclick="selectCounty(${c.id})">
-      ${TERRAIN_ICON[c.terrain]} ${c.name}
-      <span style="float:right;color:#888;font-size:0.75rem">👥${(c.pop/1000).toFixed(1)}k</span>
-    </div>`
-  ).join('')||'<div style="color:#666;font-size:0.8rem">No counties</div>';
-}
-
-function selectCounty(id){
-  const c=G.counties[id];
-  G.selectedCounty=c;
-  openCountyPanel(c);
-  drawMap();
-}
-
-// ═══════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════
-function openModal(id){ document.getElementById(id).classList.add('show'); }
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-
-let toastTimer;
-function toast(msg, dur=2500){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'), dur);
-}
-
-function addLog(msg, type=''){
-  G.log.unshift({msg, type});
-  if(G.log.length>50) G.log.pop();
-  const el=document.getElementById('event-log');
-  el.innerHTML=G.log.slice(0,20).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(m=>{
-  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('show'); });
+canvas.addEventListener('click',()=>{canvas.requestPointerLock();});
+document.addEventListener('pointerlockchange',()=>{
+  mouseLocked=document.pointerLockElement===canvas;
+  updateHUD();
 });
+document.addEventListener('mousemove',e=>{
+  if(!gameActive||document.pointerLockElement!==canvas) return;
+  player.angle+=e.movementX*0.0025;
+});
+document.addEventListener('mousedown',e=>{if(e.button===0) shoot();});
+document.addEventListener('keydown',e=>{
+  keys[e.key.toLowerCase()]=true;
+  if(e.key.toLowerCase()==='r') startReload();
+  if(e.key===' ') { e.preventDefault(); shoot(); }
+});
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+function startGame() {
+  player.health=100; player.ammo=30; player.reserve=90;
+  player.score=0; player.kills=0;
+  player.x=2.5*CELL; player.y=2.5*CELL; player.angle=0;
+  wave=1; enemies=[]; bullets=[]; particles=[];
+  reloading=false; reloadProgress=0;
+  gameActive=true;
+  spawnWave(wave);
+  showWaveBanner('WAVE 1');
+  updateHUD();
+  canvas.requestPointerLock();
+}
+
+document.getElementById('start-btn').addEventListener('click',()=>{
+  document.getElementById('overlay').style.display='none';
+  startGame();
+});
+document.getElementById('restart-btn').addEventListener('click',()=>{
+  document.getElementById('gameover').style.display='none';
+  startGame();
+});
+
+loop();
 </script>
 </body>
 </html>
